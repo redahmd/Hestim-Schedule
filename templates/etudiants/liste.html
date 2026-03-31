@@ -1,0 +1,127 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Étudiants - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">🎓 Gestion des
+            Étudiants</h1>
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez les étudiants et leur affectation aux
+                groupes.</p>
+            <a href="{{ url_for('etudiants.creer') }}" class="btn-gradient px-4 py-2 text-sm">
+                ➕ Ajouter un étudiant
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="glass-card mb-6 p-6 animate-fade-in-up">
+        <form method="GET" action="{{ url_for('etudiants.liste') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+                <label
+                    class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Recherche</label>
+                <input type="text" name="recherche" value="{{ recherche }}"
+                    placeholder="Rechercher par nom, prénom ou email..."
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+            </div>
+            <div>
+                <label
+                    class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Groupe</label>
+                <select name="groupe_id"
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                    <option value="" class="text-gray-900">Tous les groupes</option>
+                    {% for grp in groupes %}
+                    <option value="{{ grp.id_groupe }}" {% if groupe_id and groupe_id|int==grp.id_groupe %}selected{%
+                        endif %} class="text-gray-900">
+                        {{ grp.nom_groupe }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="md:col-span-3 flex justify-end">
+                <button type="submit" class="btn-outline px-6 py-2">🔍 Filtrer</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des étudiants -->
+    <div class="glass-card p-6 animate-fade-in-up">
+        {% if etudiants %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Nom</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Email</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Niveau</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Groupe</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Statut</th>
+                        <th
+                            class="text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for etudiant in etudiants %}
+                    <tr
+                        class="border-b border-gold-700/10 hover:bg-white/5 [&[data-theme=light]]:border-[#e2e8f0] [&[data-theme=light]]:hover:bg-[#f8fafc] transition-colors">
+                        <td class="py-4 px-4 font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                            etudiant.prenom }} {{ etudiant.nom }}</td>
+                        <td class="py-4 px-4 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">{{
+                            etudiant.email }}</td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">{{ etudiant.niveau
+                            or '-' }}</td>
+                        <td class="py-4 px-4">
+                            {% if etudiant.groupe %}
+                            <span
+                                class="inline-block px-2 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold [&[data-theme=light]]:bg-[#10b981]/10 [&[data-theme=light]]:text-[#059669]">
+                                {{ etudiant.groupe.nom_groupe }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-500 text-xs">Non assigné</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4">
+                            {% if etudiant.actif %}
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-2"></span> <span
+                                class="text-xs text-gray-300 [&[data-theme=light]]:text-[#475569]">Actif</span>
+                            {% else %}
+                            <span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2"></span> <span
+                                class="text-xs text-gray-300 [&[data-theme=light]]:text-[#475569]">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-right">
+                            <a href="{{ url_for('etudiants.modifier', id=etudiant.id_etudiant) }}"
+                                class="px-3 py-1.5 rounded-lg border border-white/20 text-white hover:bg-white/10 text-xs transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                                ✏️
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">🎓</div>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg mb-2">Aucun étudiant trouvé</p>
+            <a href="{{ url_for('etudiants.creer') }}" class="btn-gradient px-6 py-3 mt-4 inline-block">
+                ➕ Ajouter un premier étudiant
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

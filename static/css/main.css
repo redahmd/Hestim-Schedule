@@ -1,0 +1,476 @@
+:root {
+    --color-hestim-red: #da291c;
+
+    --color-hestim-blue: #002060;
+
+    --color-sidebar-bg: var(--color-hestim-red);
+    --color-sidebar-text: #ffffff;
+    --color-main-bg: #f3f4f6;
+
+    --color-surface-dark: #0a0a0f;
+    --color-surface: #ffffff;
+    --color-on-surface: #0f172a;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-main-bg) !important;
+    background: var(--color-main-bg) !important;
+
+    color: #1f2937;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+}
+
+.sidebar {
+    width: 280px;
+    background-color: var(--color-hestim-red);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Slight darken */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 0.95rem;
+    font-weight: 500;
+    gap: 0.75rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.nav-link i,
+.nav-link svg {
+    width: 20px;
+    opacity: 0.9;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    /* Width of sidebar */
+    width: calc(100% - 280px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Branding Bar (Le dégradé bleu foncé Hestim) */
+.hestim-header {
+    background: rgba(243, 244, 246, 0.75);
+    /* Fond semi-transparent pour effet de filage */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #002060;
+    /* Texte Bleu Foncé pour lisibilité */
+    border-bottom: 1px solid rgba(0, 32, 96, 0.1);
+    padding: 1.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    overflow: visible;
+    box-shadow: 0 2px 12px rgba(0, 32, 96, 0.06);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hestim-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f3f4f6' fill-opacity='1' d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,202.7C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    /* Subtil */
+    display: none;
+    /* Désactivé pour match exact screenshot si besoin */
+}
+
+/* Logo Hestim Header */
+.header-logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-logo-sub {
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    display: block;
+}
+
+/* Ajustements Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* =========================================
+   COMPOSANTS MANQUANTS & FIXES (Ajoutés)
+   ========================================= */
+
+/* Glassmorphism Card Style - Mode Clair par défaut (car Body est clair) */
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    /* Fond blanc presque opaque */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    /* Ombre douce */
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.05),
+        0 10px 10px -5px rgba(0, 0, 0, 0.02);
+}
+
+/* Boutons Gradient (Rouge Premium) */
+.btn-gradient {
+    /* Gradient Rouge Hestim vers plus foncé */
+    background: linear-gradient(135deg, #da291c 0%, #b91c1c 100%);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(218, 41, 28, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(218, 41, 28, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn-gradient:active {
+    transform: translateY(0);
+}
+
+/* Boutons Outline (Bleu Hestim) */
+.btn-outline {
+    background: transparent;
+    border: 2px solid #002060;
+    /* Bleu Hestim */
+    color: #002060;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-outline:hover {
+    background: rgba(0, 32, 96, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Animations Helper */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Typography Helper */
+.font-display {
+    font-family: 'Poppins', sans-serif;
+
+}
+
+/* =========================================
+   FIXES CONTRASTE & THEME CLAIR (GLOBAL)
+   ========================================= */
+
+/* Fix pour les textes gris clair (invisibles sur fond blanc) */
+[data-theme="light"] .text-gray-300,
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-white\/20,
+[data-theme="light"] .text-white\/50 {
+    color: #475569 !important;
+    /* Slate-600 */
+}
+
+/* Fix pour les textes dorés (trop clairs sur fond blanc) */
+[data-theme="light"] .text-gold-300,
+[data-theme="light"] .text-gold-400,
+[data-theme="light"] .text-gold-500 {
+    color: #b45309 !important;
+    /* Amber-700 */
+}
+
+
+/* Force la couleur de texte sombre par défaut sur le body en thème clair */
+[data-theme="light"] body {
+    color: #1f2937;
+    /* Gray-800 */
+}
+
+/* Force la couleur des textes dans les cartes Glassmorphism */
+[data-theme="light"] .glass-card {
+    color: #1f2937;
+}
+
+[data-theme="light"] .glass-card h1,
+[data-theme="light"] .glass-card h2,
+[data-theme="light"] .glass-card h3,
+[data-theme="light"] .glass-card h4,
+[data-theme="light"] .glass-card h5,
+[data-theme="light"] .glass-card h6 {
+    color: #0f172a;
+    /* Slate-900 (Plus noir) */
+}
+
+/* Force la couleur des labels */
+[data-theme="light"] label,
+[data-theme="light"] .glass-card label {
+    color: #334155;
+    /* Slate-700 */
+}
+
+/* Force la couleur des Inputs et Selects */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="time"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    /* Slate-300 */
+    color: #0f172a;
+    /* Slate-900 (Texte Noir) */
+}
+
+/* Couleur des placeholders en thème clair */
+[data-theme="light"] ::placeholder {
+    color: #94a3b8 !important;
+    /* Slate-400 */
+    opacity: 1;
+}
+
+/* Fix spécifique pour les selects qui peuvent être capricieux */
+[data-theme="light"] select option {
+    background-color: white;
+    color: #0f172a;
+}
+
+/* Force la couleur des textes dans les Tableaux */
+[data-theme="light"] table th {
+    color: #475569;
+    /* Slate-600 */
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] table td {
+    color: #334155;
+    /* Slate-700 */
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] table tr:hover td {
+    background-color: #f8fafc;
+    /* Slate-50 */
+}
+
+/* Fix pour les textes "text-white" hardcodés dans Tailwind qui doivent être noirs en thème clair */
+/* Note: Ceci est une règle de secours puissante */
+[data-theme="light"] .text-white {
+    color: #0f172a !important;
+    /* Force le noir si le fond est clair */
+}
+
+/* Exception pour les éléments qui DOIVENT rester blancs (sur fond foncé) */
+[data-theme="light"] .btn-gradient,
+[data-theme="light"] .btn-gradient .text-white,
+[data-theme="light"] .sidebar .text-white,
+[data-theme="light"] .bg-red-500.text-white,
+[data-theme="light"] .bg-emerald-500.text-white,
+[data-theme="light"] .bg-blue-500.text-white {
+    color: #ffffff !important;
+}
+
+[data-theme="light"] .sidebar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="light"] .sidebar-nav .nav-link.active,
+[data-theme="light"] .sidebar-nav .nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* Global Checkbox and Toggle Enhancements */
+input[type="checkbox"]:not(.sr-only) {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-color: #dc2626 !important;
+    /* Red-600 (Distinct OFF) */
+    border: 2px solid #991b1b !important;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-grid;
+    place-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] input[type="checkbox"]:not(.sr-only) {
+    background-color: #ef4444 !important;
+    /* Red-500 for Light Mode OFF */
+    border-color: #dc2626 !important;
+}
+
+input[type="checkbox"]:not(.sr-only):checked {
+    background-color: #22c55e !important;
+    /* Green-500 for ON */
+    border-color: #16a34a !important;
+}
+
+input[type="checkbox"]:not(.sr-only)::before {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    background-color: white;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+input[type="checkbox"]:not(.sr-only):checked::before {
+    transform: scale(1);
+}
+
+/* Toggle Switch Sibling (Peer) Fix */
+.peer+div {
+    background-color: #dc2626 !important;
+    /* Red-600 OFF */
+    border: 1px solid #991b1b !important;
+    transition: all 0.3s ease !important;
+}
+
+[data-theme="light"] .peer+div {
+    background-color: #ef4444 !important;
+    /* Red-500 OFF Light */
+    border-color: #dc2626 !important;
+}
+
+.peer:checked+div,
+.peer:checked~div {
+    background-color: #22c55e !important;
+    /* Green-500 ON */
+    border-color: #16a34a !important;
+}
+
+/* Ensure the background changes even if other classes exist */
+[data-theme="light"] .peer:checked+div,
+[data-theme="light"] .peer:checked~div {
+    background-color: #22c55e !important;
+    border-color: #16a34a !important;
+}

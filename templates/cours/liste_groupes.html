@@ -1,0 +1,175 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Liste des Groupes - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">👥
+                    Groupes d'Étudiants</h1>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez les groupes d'étudiants et consultez
+                    leurs statistiques.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ url_for('cours.liste') }}" class="btn-outline px-4 py-2 text-sm">
+                    ← Retour aux cours
+                </a>
+                <a href="{{ url_for('cours.creer_groupe') }}" class="btn-gradient px-4 py-2 text-sm">
+                    ➕ Nouveau Groupe
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if groupes_data %}
+    <!-- Statistiques globales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 animate-fade-in-up">
+        <div class="glass-card p-6 text-center">
+            <div class="text-3xl font-display font-bold text-gold-500 mb-2 [&[data-theme=light]]:text-[#3b82f6]">
+                {{ groupes_data|length }}
+            </div>
+            <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">Groupes créés</p>
+        </div>
+        <div class="glass-card p-6 text-center">
+            <div class="text-3xl font-display font-bold text-emerald-500 mb-2 [&[data-theme=light]]:text-[#10b981]">
+                {{ groupes_data|sum(attribute='nombre_etudiants') }}
+            </div>
+            <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">Étudiants total</p>
+        </div>
+        <div class="glass-card p-6 text-center">
+            <div class="text-3xl font-display font-bold text-purple-500 mb-2 [&[data-theme=light]]:text-[#8b5cf6]">
+                {{ groupes_data|sum(attribute='nombre_cours') }}
+            </div>
+            <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">Cours associés</p>
+        </div>
+    </div>
+
+    <!-- Liste des groupes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+        {% for item in groupes_data %}
+        <div class="glass-card p-6 hover:scale-105 transition-all duration-300 hover:shadow-lg">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="text-xl font-display font-bold text-white mb-1 [&[data-theme=light]]:text-[#0f172a]">
+                        {{ item.groupe.nom_groupe }}
+                    </h3>
+                    {% if item.groupe.filiere %}
+                    <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">
+                        📚 {{ item.groupe.filiere }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div
+                    class="px-3 py-1 rounded-full bg-emerald-700/20 text-emerald-300 text-xs font-semibold whitespace-nowrap [&[data-theme=light]]:bg-[#10b981]/10 [&[data-theme=light]]:text-[#059669]">
+                    {{ item.groupe.niveau }}
+                </div>
+            </div>
+
+            <!-- Barre de progression pour le remplissage -->
+            <div class="mb-4">
+                <div class="flex items-center justify-between text-xs mb-2">
+                    <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Remplissage</span>
+                    <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                        item.pourcentage_remplissage }}%</span>
+                </div>
+                <div class="w-full bg-gray-700/30 rounded-full h-2 [&[data-theme=light]]:bg-[#e2e8f0]">
+                    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-500 [&[data-theme=light]]:from-[#10b981] [&[data-theme=light]]:to-[#059669]"
+                        style="width: {{ item.pourcentage_remplissage }}%"></div>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-4">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b] flex items-center gap-2">
+                        👥 Effectif prévu:
+                    </span>
+                    <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ item.groupe.effectif
+                        }} étudiants</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b] flex items-center gap-2">
+                        ✅ Étudiants inscrits:
+                    </span>
+                    <span
+                        class="font-semibold {% if item.nombre_etudiants < item.groupe.effectif %}text-emerald-400{% else %}text-white{% endif %} [&[data-theme=light]]:text-[#0f172a]">
+                        {{ item.nombre_etudiants }} étudiants
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b] flex items-center gap-2">
+                        📚 Cours associés:
+                    </span>
+                    <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ item.nombre_cours }}
+                        cours</span>
+                </div>
+                {% if item.groupe.annee_academique %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b] flex items-center gap-2">
+                        📅 Année académique:
+                    </span>
+                    <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                        item.groupe.annee_academique }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="pt-4 border-t border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                <div class="flex gap-2">
+                    <a href="{{ url_for('cours.creer') }}?groupe_id={{ item.groupe.id_groupe }}"
+                        class="flex-1 btn-outline px-3 py-2 text-xs text-center hover:scale-105 transition-transform">
+                        ➕ Créer un cours
+                    </a>
+                    <a href="{{ url_for('cours.liste') }}?groupe_id={{ item.groupe.id_groupe }}"
+                        class="flex-1 btn-gradient px-3 py-2 text-xs text-center hover:scale-105 transition-transform">
+                        📋 Voir cours
+                    </a>
+                    <a href="{{ url_for('cours.modifier_groupe', id=item.groupe.id_groupe) }}"
+                        class="flex-none px-3 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                        ✏️
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-12 text-center animate-fade-in-up">
+        <div class="text-6xl mb-4">👥</div>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg mb-2">Aucun groupe créé</p>
+        <p class="text-gray-500 [&[data-theme=light]]:text-[#94a3b8] text-sm mb-6">Commencez par créer votre premier
+            groupe d'étudiants.</p>
+        <a href="{{ url_for('cours.creer_groupe') }}" class="btn-gradient px-6 py-3">
+            ➕ Créer un groupe
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Guide d'utilisation -->
+    <div class="mt-8 glass-card p-6 animate-fade-in-up">
+        <h2 class="text-xl font-display font-bold text-white mb-4 [&[data-theme=light]]:text-[#0f172a]">📋 Guide
+            d'utilisation des groupes</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="space-y-2">
+                <h3 class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a] mb-2">Après la création d'un
+                    groupe :</h3>
+                <ul class="space-y-1 text-gray-400 [&[data-theme=light]]:text-[#64748b]">
+                    <li>✅ Le groupe est maintenant disponible dans le système</li>
+                    <li>✅ Vous pouvez créer des cours pour ce groupe</li>
+                    <li>✅ Les étudiants peuvent être associés à ce groupe lors de leur inscription</li>
+                </ul>
+            </div>
+            <div class="space-y-2">
+                <h3 class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a] mb-2">Prochaines étapes
+                    recommandées :</h3>
+                <ul class="space-y-1 text-gray-400 [&[data-theme=light]]:text-[#64748b]">
+                    <li>1️⃣ Créer des cours pour ce groupe</li>
+                    <li>2️⃣ Ajouter des étudiants au groupe (via inscription)</li>
+                    <li>3️⃣ Créer des réservations pour les cours du groupe</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

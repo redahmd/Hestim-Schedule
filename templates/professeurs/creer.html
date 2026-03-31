@@ -1,0 +1,86 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Ajouter un professeur - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <a href="{{ url_for('professeurs.liste') }}"
+            class="text-gray-400 hover:text-white transition-colors mb-4 inline-flex items-center gap-2 [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:text-[#0f172a]">
+            <span>←</span> Retour à la liste
+        </a>
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">➕ Ajouter un
+            professeur</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Enregistrez un nouvel enseignant dans le système.
+        </p>
+    </div>
+
+    <div class="glass-card p-6 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('professeurs.creer') }}" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nom et Prénom -->
+                <div>
+                    <label for="nom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Nom
+                        *</label>
+                    <input type="text" id="nom" name="nom" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+                <div>
+                    <label for="prenom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Prénom
+                        *</label>
+                    <input type="text" id="prenom" name="prenom" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Email et Téléphone -->
+                <div class="md:col-span-2">
+                    <label for="email"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Email
+                        *</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="prenom.nom@hestim.ma">
+                </div>
+
+                <div>
+                    <label for="telephone"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Spécialité et Département -->
+                <div>
+                    <label for="specialite"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Spécialité</label>
+                    <input type="text" id="specialite" name="specialite"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: Informatique, Mathématiques...">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="departement"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Département</label>
+                    <input type="text" id="departement" name="departement"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: Génie Informatique">
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-end gap-4 pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#cbd5e1]">
+                <a href="{{ url_for('professeurs.liste') }}"
+                    class="px-6 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-gradient px-6 py-2 cursor-pointer">
+                    Ajouter le professeur
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Professeurs - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">👨‍🏫 Gestion
+            des Professeurs</h1>
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez le corps enseignant et leurs
+                informations.</p>
+            <a href="{{ url_for('professeurs.creer') }}" class="btn-gradient px-4 py-2 text-sm">
+                ➕ Ajouter un professeur
+            </a>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="glass-card mb-6 p-6 animate-fade-in-up">
+        <form method="GET" action="{{ url_for('professeurs.liste') }}" class="flex gap-4">
+            <div class="flex-1">
+                <input type="text" name="recherche" value="{{ recherche }}"
+                    placeholder="Rechercher par nom, email ou spécialité..."
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+            </div>
+            <button type="submit" class="btn-outline px-6 py-2">🔍 Rechercher</button>
+        </form>
+    </div>
+
+    <!-- Liste des professeurs -->
+    {% if professeurs %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+        {% for prof in professeurs %}
+        <div
+            class="glass-card p-6 hover:scale-105 transition-all duration-300 hover:shadow-lg relative overflow-hidden">
+            <!-- Badge actif/inactif -->
+            <div class="absolute top-4 right-4">
+                {% if prof.actif %}
+                <span class="w-3 h-3 rounded-full bg-emerald-500 block shadow-lg shadow-emerald-500/50"></span>
+                {% else %}
+                <span class="w-3 h-3 rounded-full bg-red-500 block shadow-lg shadow-red-500/50"></span>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-4 mb-4">
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    {{ prof.prenom[0] }}{{ prof.nom[0] }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white [&[data-theme=light]]:text-[#0f172a]">{{ prof.prenom }} {{
+                        prof.nom }}</h3>
+                    <p class="text-sm text-gold-400 [&[data-theme=light]]:text-[#3b82f6]">{{ prof.specialite or
+                        'Spécialité non définie' }}</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center gap-3 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                    <i class="fa-solid fa-envelope w-5 opacity-70"></i>
+                    <a href="mailto:{{ prof.email }}" class="hover:text-white transition-colors">{{ prof.email }}</a>
+                </div>
+                {% if prof.telephone %}
+                <div class="flex items-center gap-3 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                    <i class="fa-solid fa-phone w-5 opacity-70"></i>
+                    <span>{{ prof.telephone }}</span>
+                </div>
+                {% endif %}
+                <div class="flex items-center gap-3 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                    <i class="fa-solid fa-building-user w-5 opacity-70"></i>
+                    <span>{{ prof.departement or 'Département non défini' }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                    <i class="fa-solid fa-book-open w-5 opacity-70"></i>
+                    <span>{{ prof.nb_cours }} cours associés</span>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#cbd5e1] flex gap-2">
+                <a href="{{ url_for('professeurs.modifier', id=prof.id_professeur) }}"
+                    class="flex-1 btn-outline px-2 py-2 text-center text-sm">
+                    ✏️ Modifier
+                </a>
+                <a href="{{ url_for('cours.liste') }}?professeur_id={{ prof.id_professeur }}"
+                    class="flex-1 btn-white px-2 py-2 text-center text-sm bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors [&[data-theme=light]]:bg-gray-100 [&[data-theme=light]]:text-gray-700 [&[data-theme=light]]:hover:bg-gray-200">
+                    Voir cours
+                </a>
+                <a href="{{ url_for('dashboard.statistics_professeur', id_professeur=prof.id_professeur) }}"
+                    class="flex-1 btn-white px-2 py-2 text-center text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors shadow-lg shadow-purple-900/20"
+                    title="Voir les statistiques">
+                    📊 Stats
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-12 text-center animate-fade-in-up">
+        <div class="text-6xl mb-4">👨‍🏫</div>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg mb-2">Aucun professeur trouvé</p>
+        <a href="{{ url_for('professeurs.creer') }}" class="btn-gradient px-6 py-3 mt-4 inline-block">
+            ➕ Ajouter un premier professeur
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

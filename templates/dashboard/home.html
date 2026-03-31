@@ -1,0 +1,162 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Tableau de bord - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in-up">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Bonjour, {{ current_user.prenom }} 👋</h1>
+        <p class="text-gray-600">Bienvenue sur votre espace HESTIM.</p>
+    </div>
+
+    {% if current_user.role == 'administrateur' %}
+    <!-- Admin Actions -->
+    <div class="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <h3 class="text-lg font-bold text-indigo-900 mb-1">Génération & Validation</h3>
+            <p class="text-sm text-indigo-700">Validez les emplois du temps générés pour les rendre visibles aux
+                étudiants et profs.</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <form action="{{ url_for('dashboard.validate_planning') }}" method="POST"
+                onsubmit="return confirm('Êtes-vous sûr de vouloir publier le planning ? Cette action rendra visibles toutes les réservations en attente.');">
+                <button type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                    <i class="fas fa-check-double"></i>
+                    Valider & Publier
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {% if current_user.role == 'administrateur' %}
+        <!-- Existing Base Stats -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-blue-900 text-3xl mb-2 font-bold">{{ stats.total_reservations|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Réservations</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-green-600 text-3xl mb-2 font-bold">{{ stats.total_salles|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Salles</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-purple-600 text-3xl mb-2 font-bold">{{ stats.total_cours|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Cours</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-red-500 text-3xl mb-2 font-bold">{{ stats.reservations_aujourdhui|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Aujourd'hui</div>
+        </div>
+        
+        </div>
+        
+        <!-- Requested Analytics Stats Grid -->
+        <h3 class="text-lg font-bold text-gray-800 mb-4 mt-6"><i class="fas fa-chart-line text-blue-600 mr-2"></i> Indicateurs Avancés</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-100 shadow-sm flex flex-col justify-center items-center">
+                <div class="text-indigo-900 text-3xl font-bold">{{ stats.moy_heures_prof|default(0) }}<span class="text-lg">h</span></div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-indigo-700 mt-1">Moy. Heures / Prof</div>
+            </div>
+            <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm flex flex-col justify-center items-center">
+                <div class="text-blue-900 text-3xl font-bold">{{ stats.moy_heures_etu|default(0) }}<span class="text-lg">h</span></div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-blue-700 mt-1">Moy. Heures / Étudiant</div>
+            </div>
+            <div class="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm flex flex-col justify-center items-center">
+                <div class="text-purple-900 text-3xl font-bold">{{ stats.taux_absence|default(0) }}<span class="text-lg">%</span></div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-purple-700 mt-1">Taux d'Absence (Sim)</div>
+            </div>
+            <div class="bg-red-50 p-5 rounded-xl border border-red-100 shadow-sm flex flex-col justify-center items-center">
+                <div class="text-red-600 text-3xl font-bold">{{ stats.taux_conflits|default(0) }}<span class="text-lg">%</span></div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-red-700 mt-1">Taux de Conflit</div>
+            </div>
+            <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 shadow-sm flex flex-col justify-center items-center relative overflow-hidden">
+                <div class="text-amber-600 text-3xl font-bold relative z-10">{{ stats.taux_modifs|default(0) }}<span class="text-lg">%</span></div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-amber-700 mt-1 relative z-10">Modifications</div>
+                <a href="{{ url_for('dashboard.statistics') }}" class="absolute bottom-0 right-0 left-0 bg-amber-100/50 hover:bg-amber-100 text-[10px] text-center py-1 text-amber-800 transition-colors z-20">
+                    Plus de stats <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        {% elif current_user.role == 'enseignant' %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-blue-900 text-3xl mb-2 font-bold">{{ stats.mes_cours|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Mes Cours</div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-green-600 text-3xl mb-2 font-bold">{{ stats.mes_reservations|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Mes Réservations</div>
+        </div>
+
+        {% else %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div class="text-blue-900 text-3xl mb-2 font-bold">{{ stats.reservations_groupe|default(0) }}</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">Réservations (Semaine)</div>
+        </div>
+
+        {% if not stats.a_groupe %}
+        <div class="col-span-3 bg-blue-50 p-4 rounded-xl border border-blue-100 text-blue-800">
+            <i class="fas fa-info-circle mr-2"></i> Votre compte étudiant n'est pas encore associé à un groupe.
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Prochaines réservations -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="font-bold text-gray-800">📅 Prochaines réservations</h3>
+            <div class="flex gap-2">
+                <a href="{{ url_for('reservations.export_ics') }}"
+                    class="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition flex items-center gap-1"
+                    title="Télécharger pour Google Agenda">
+                    <i class="fa-solid fa-calendar-plus"></i> Google Agenda
+                </a>
+                <a href="{{ url_for('reservations.liste') }}"
+                    class="text-sm text-blue-600 hover:underline flex items-center">Tout voir</a>
+            </div>
+        </div>
+
+        {% if reservations_prochaines %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Date</th>
+                        <th class="px-6 py-3 text-left">Heure</th>
+                        <th class="px-6 py-3 text-left">Matière</th>
+                        <th class="px-6 py-3 text-left">Salle</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for reservation in reservations_prochaines %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 text-sm font-medium">{{ reservation.creneau.jour.strftime('%d/%m') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ reservation.creneau.heure_debut.strftime('%H:%M')
+                            }} - {{ reservation.creneau.heure_fin.strftime('%H:%M') }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-bold text-gray-800">{{ reservation.cours.code_cours }}</div>
+                            <div class="text-xs text-gray-500">{{ reservation.cours.nom_cours }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">{{
+                                reservation.salle.numero_salle }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-gray-400">
+            Aucune réservation à venir.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

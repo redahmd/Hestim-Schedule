@@ -1,0 +1,139 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Créer un Cours - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">➕ Créer un
+            Nouveau Cours</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Ajoutez un nouveau cours au système. Le code sera
+            généré automatiquement.</p>
+    </div>
+
+    <div class="glass-card p-8 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('cours.creer') }}" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label for="nom_cours"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Nom du cours <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="nom_cours" name="nom_cours" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: Développement Web">
+                </div>
+
+                <div>
+                    <label for="type_cours"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Type de cours <span class="text-red-500">*</span>
+                    </label>
+                    <select id="type_cours" name="type_cours" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        style="color: white;">
+                        <option value="">Sélectionner un type</option>
+                        <option value="CM" style="background-color: #1e293b; color: white;">CM - Cours Magistral
+                        </option>
+                        <option value="TD" style="background-color: #1e293b; color: white;">TD - Travaux Dirigés
+                        </option>
+                        <option value="TP" style="background-color: #1e293b; color: white;">TP - Travaux Pratiques
+                        </option>
+                        <option value="projet" style="background-color: #1e293b; color: white;">Projet</option>
+                        <option value="examen" style="background-color: #1e293b; color: white;">Examen</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="nombre_heures"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Nombre d'heures <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="nombre_heures" name="nombre_heures" min="1" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: 40">
+                </div>
+
+                <div>
+                    <label for="id_professeur"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Professeur <span class="text-red-500">*</span>
+                    </label>
+                    <select id="id_professeur" name="id_professeur" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        style="color: white;">
+                        <option value="">Sélectionner un professeur</option>
+                        {% for prof in professeurs %}
+                        <option value="{{ prof.id_professeur }}" style="background-color: #1e293b; color: white;">
+                            {{ prof.prenom }} {{ prof.nom }}{% if prof.specialite %} - {{ prof.specialite }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="id_groupe"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Groupe <span class="text-red-500">*</span>
+                    </label>
+                    <select id="id_groupe" name="id_groupe" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        style="color: white;">
+                        <option value="">Sélectionner un groupe</option>
+                        {% for grp in groupes %}
+                        <option value="{{ grp.id_groupe }}" style="background-color: #1e293b; color: white;">
+                            {{ grp.nom_groupe }}{% if grp.filiere %} - {{ grp.filiere }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="semestre"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Semestre
+                    </label>
+                    <input type="number" id="semestre" name="semestre" min="1" max="10"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: 1, 2, 3...">
+                </div>
+
+                <div>
+                    <label for="coefficient"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Coefficient
+                    </label>
+                    <input type="number" id="coefficient" name="coefficient" min="0" step="0.1"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: 3.0, 2.5...">
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <label class="inline-flex items-center gap-3 cursor-pointer group">
+                    <div class="relative">
+                        <input type="checkbox" name="notifier_etudiants" class="peer sr-only" checked>
+                        <div
+                            class="w-11 h-6 bg-slate-600 border border-slate-500 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:!bg-emerald-500 peer-checked:!border-emerald-500 [&[data-theme=light]]:bg-slate-300 [&[data-theme=light]]:border-slate-400 [&[data-theme=light]]:peer-checked:!bg-emerald-500 [&[data-theme=light]]:peer-checked:!border-emerald-500">
+                        </div>
+                    </div>
+                    <span
+                        class="text-sm font-semibold text-white group-hover:text-gold-300 transition-colors [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:group-hover:text-[#3b82f6]">
+                        🔔 Envoyer le code aux étudiants
+                    </span>
+                </label>
+            </div>
+
+            <div
+                class="flex items-center justify-end gap-4 pt-4 border-t border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                <a href="{{ url_for('cours.liste') }}" class="btn-outline px-6 py-2">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-gradient px-6 py-2">
+                    ✅ Créer le cours
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

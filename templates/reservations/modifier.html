@@ -1,0 +1,80 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Modifier la Réservation - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-6 py-10">
+    <div class="mb-6 animate-fade-in-up">
+        <a href="{{ url_for('reservations.detail', id=reservation.id_reservation) }}" class="btn-outline inline-flex items-center gap-2 mb-4">
+            ← Retour
+        </a>
+    </div>
+
+    <div class="glass-card p-8 animate-fade-in-up">
+        <div class="mb-6">
+            <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">✏️ Modifier la Réservation</h1>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Mettez à jour les informations de la réservation.</p>
+        </div>
+
+        <div class="glass-card p-4 mb-6 bg-blue-500/10 border border-blue-500/30">
+            <p class="text-sm text-white [&[data-theme=light]]:text-[#0f172a]">
+                <span class="font-semibold">Cours:</span> {{ reservation.cours.code_cours }} - {{ reservation.cours.nom_cours }}<br>
+                <span class="font-semibold">Groupe:</span> {{ reservation.cours.groupe.nom_groupe }} ({{ reservation.cours.groupe.effectif }} étudiants)
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('reservations.modifier', id=reservation.id_reservation) }}" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="jour" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Date <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="date" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="jour" name="jour" value="{{ reservation.creneau.jour.strftime('%Y-%m-%d') }}" required>
+                </div>
+                <div>
+                    <label for="heure_debut" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Heure début <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="time" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="heure_debut" name="heure_debut" value="{{ reservation.creneau.heure_debut.strftime('%H:%M') }}" required>
+                </div>
+                <div>
+                    <label for="heure_fin" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Heure fin <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="time" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="heure_fin" name="heure_fin" value="{{ reservation.creneau.heure_fin.strftime('%H:%M') }}" required>
+                </div>
+            </div>
+
+            <div>
+                <label for="id_salle" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                    Salle <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                </label>
+                <select class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="id_salle" name="id_salle" required>
+                    {% for salle in salles_list %}
+                    <option value="{{ salle.id_salle }}" 
+                            {% if salle.id_salle == reservation.id_salle %}selected{% endif %}
+                            data-capacite="{{ salle.capacite }}">
+                        {{ salle.numero_salle }} - {{ salle.batiment }} ({{ salle.capacite }} places)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="commentaire" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Commentaire</label>
+                <textarea class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="commentaire" name="commentaire" rows="3">{{ reservation.commentaire or '' }}</textarea>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
+                <a href="{{ url_for('reservations.detail', id=reservation.id_reservation) }}" class="btn-outline px-6 py-3">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-gradient px-6 py-3">
+                    ✅ Enregistrer les modifications
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

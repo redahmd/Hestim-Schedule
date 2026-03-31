@@ -1,0 +1,144 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Modifier une salle - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <a href="{{ url_for('salles.liste') }}"
+            class="text-gray-400 hover:text-white transition-colors mb-4 inline-flex items-center gap-2 [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:text-[#0f172a]">
+            <span>?</span> Retour � la liste
+        </a>
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">?? Modifier la
+            salle {{ salle.numero_salle }}</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Mettez � jour les informations de la salle.</p>
+    </div>
+
+    <div class="glass-card p-6 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('salles.modifier', id=salle.id_salle) }}" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Num�ro et B�timent -->
+                <div>
+                    <label for="numero_salle"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Num�ro
+                        de salle *</label>
+                    <input type="text" id="numero_salle" name="numero_salle" value="{{ salle.numero_salle }}" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+                <div>
+                    <label for="batiment"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">B�timent</label>
+                    <input type="text" id="batiment" name="batiment" value="{{ salle.batiment or '' }}"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Type et Capacit� -->
+                <div>
+                    <label for="type_salle"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Type de
+                        salle *</label>
+                    <select id="type_salle" name="type_salle" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                        <option value="classe" {% if salle.type_salle=='classe' %}selected{% endif %}
+                            class="text-gray-900">Classe</option>
+                        <option value="amphi" {% if salle.type_salle=='amphi' %}selected{% endif %}
+                            class="text-gray-900">Amphith��tre</option>
+                        <option value="labo_informatique" {% if salle.type_salle=='labo_informatique' %}selected{% endif
+                            %} class="text-gray-900">Labo Informatique</option>
+                        <option value="labo_sciences" {% if salle.type_salle=='labo_sciences' %}selected{% endif %}
+                            class="text-gray-900">Labo Sciences</option>
+                        <option value="salle_reunion" {% if salle.type_salle=='salle_reunion' %}selected{% endif %}
+                            class="text-gray-900">Salle de R�union</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="capacite"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Capacit�
+                        *</label>
+                    <input type="number" id="capacite" name="capacite" value="{{ salle.capacite }}" required min="1"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+            </div>
+
+            <!-- Statut -->
+            <div>
+                <label for="statut"
+                    class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Statut</label>
+                <select id="statut" name="statut"
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                    <option value="disponible" {% if salle.statut=='disponible' %}selected{% endif %}
+                        class="text-gray-900">?? Disponible</option>
+                    <option value="en_maintenance" {% if salle.statut=='en_maintenance' %}selected{% endif %}
+                        class="text-gray-900">?? En maintenance</option>
+                    <option value="hors_service" {% if salle.statut=='hors_service' %}selected{% endif %}
+                        class="text-gray-900">?? Hors service</option>
+                </select>
+            </div>
+
+            <!-- �quipements -->
+            <div
+                class="p-4 rounded-lg border border-white/10 bg-white/5 [&[data-theme=light]]:bg-[#f1f5f9] [&[data-theme=light]]:border-[#cbd5e1]">
+                <h3 class="font-semibold text-white mb-4 [&[data-theme=light]]:text-[#0f172a]">�quipements</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <label
+                        class="flex items-center gap-2 cursor-pointer text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                        <input type="checkbox" name="equipement_video" {% if salle.equipement_video %}checked{% endif %}
+                            class="rounded border-gray-500 text-emerald-500 focus:ring-emerald-500">
+                        ?? Vid�oprojecteur
+                    </label>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                        <input type="checkbox" name="equipement_informatique" {% if salle.equipement_informatique
+                            %}checked{% endif %}
+                            class="rounded border-gray-500 text-emerald-500 focus:ring-emerald-500">
+                        ?? Ordinateurs
+                    </label>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                        <input type="checkbox" name="tableau_interactif" {% if salle.tableau_interactif %}checked{%
+                            endif %} class="rounded border-gray-500 text-emerald-500 focus:ring-emerald-500">
+                        ?? Tableau interactif
+                    </label>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                        <input type="checkbox" name="climatisation" {% if salle.climatisation %}checked{% endif %}
+                            class="rounded border-gray-500 text-emerald-500 focus:ring-emerald-500">
+                        ?? Climatisation
+                    </label>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#cbd5e1]">
+                <button type="button" onclick="confirmDelete()"
+                    class="px-6 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors [&[data-theme=light]]:border-red-500/30 [&[data-theme=light]]:text-red-600 [&[data-theme=light]]:hover:bg-red-50">
+                    ??? Supprimer
+                </button>
+
+                <div class="flex gap-4">
+                    <a href="{{ url_for('salles.liste') }}"
+                        class="px-6 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn-gradient px-6 py-2 cursor-pointer">
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Formulaire de suppression cach� -->
+        <form id="delete-form" action="{{ url_for('salles.supprimer', id=salle.id_salle) }}" method="POST"
+            class="hidden"></form>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        if (confirm('�tes-vous s�r de vouloir supprimer cette salle ? Cette action est irr�versible.')) {
+            document.getElementById('delete-form').submit();
+        }
+    }
+</script>
+{% endblock %}

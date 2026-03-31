@@ -1,0 +1,116 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Mon Profil - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-8">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">👤 Mon Profil
+        </h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez vos informations personnelles.</p>
+    </div>
+
+    <!-- Carte Profil Principale -->
+    <div class="glass-card p-8 rounded-2xl animate-fade-in-up md:flex gap-8 items-start">
+
+        <!-- Avatar Section -->
+        <div class="flex-shrink-0 flex flex-col items-center mb-6 md:mb-0">
+            <div
+                class="w-32 h-32 rounded-full bg-gradient-to-br from-[#da291c] to-[#b91c1c] text-white flex items-center justify-center text-4xl font-bold border-4 border-white/20 shadow-xl mb-4">
+                {{ current_user.prenom[0] }}{{ current_user.nom[0] }}
+            </div>
+            <div
+                class="px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-semibold [&[data-theme=light]]:bg-gray-100 [&[data-theme=light]]:text-gray-700">
+                {{ current_user.role|title }}
+            </div>
+        </div>
+
+        <!-- Infos Section -->
+        <div class="flex-1 space-y-6">
+            <div class="border-b border-white/10 pb-4 [&[data-theme=light]]:border-gray-200">
+                <h2 class="text-2xl font-bold mb-1 text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                    current_user.prenom }} {{ current_user.nom }}</h2>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] flex items-center gap-2">
+                    <i class="fa-solid fa-envelope"></i> {{ current_user.email }}
+                </p>
+            </div>
+
+            {% if user_details %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for key, value in user_details.items() %}
+                <div
+                    class="bg-white/5 p-4 rounded-lg border border-white/10 [&[data-theme=light]]:bg-gray-50 [&[data-theme=light]]:border-gray-200">
+                    <p class="text-xs uppercase text-gray-500 font-semibold mb-1 [&[data-theme=light]]:text-gray-500">{{
+                        key }}</p>
+                    <p class="text-white font-medium [&[data-theme=light]]:text-[#0f172a]">{{ value or '-' }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div
+                class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-200 [&[data-theme=light]]:text-yellow-700 [&[data-theme=light]]:bg-yellow-50">
+                <p>Aucune information supplémentaire disponible.</p>
+            </div>
+            {% endif %}
+
+            <!-- Changement de mot de passe -->
+            <form method="POST" action="{{ url_for('dashboard.profile') }}"
+                class="mt-8 pt-6 border-t border-white/10 [&[data-theme=light]]:border-gray-200">
+                <h3 class="text-xl font-bold mb-4 text-white [&[data-theme=light]]:text-[#0f172a]">Changer le mot de
+                    passe</h3>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div
+                    class="mb-4 p-3 rounded {{ 'bg-green-500/20 text-green-200 border-green-500/30' if category == 'success' else 'bg-red-500/20 text-red-200 border-red-500/30' }} border">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <div class="grid gap-4 max-w-md">
+                    <div>
+                        <label
+                            class="block text-sm font-medium mb-1 text-gray-400 [&[data-theme=light]]:text-gray-600">Ancien
+                            mot de passe</label>
+                        <input type="password" name="old_password" required
+                            class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-gray-300 [&[data-theme=light]]:text-gray-900 focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-medium mb-1 text-gray-400 [&[data-theme=light]]:text-gray-600">Nouveau
+                            mot de passe</label>
+                        <input type="password" name="new_password" required
+                            class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-gray-300 [&[data-theme=light]]:text-gray-900 focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-medium mb-1 text-gray-400 [&[data-theme=light]]:text-gray-600">Confirmer
+                            le nouveau mot de passe</label>
+                        <input type="password" name="confirm_password" required
+                            class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-gray-300 [&[data-theme=light]]:text-gray-900 focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+
+                    <div class="flex gap-4 mt-2">
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors font-medium shadow-lg shadow-blue-600/20">
+                            Mettre à jour
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Intégrations -->
+            <div class="mt-8 pt-6 border-t border-white/10 [&[data-theme=light]]:border-gray-200">
+                <h3 class="text-xl font-bold mb-4 text-white [&[data-theme=light]]:text-[#0f172a]">Intégrations</h3>
+                <a href="https://calendar.google.com" target="_blank"
+                    class="inline-flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded hover:bg-gray-100 transition-colors border border-gray-200 font-medium">
+                    <i class="fa-brands fa-google text-red-500"></i> Google Agenda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

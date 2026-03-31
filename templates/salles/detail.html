@@ -1,0 +1,108 @@
+﻿{% extends "base.html" %}
+
+{% block title %}D�tails de la Salle {{ salle.numero_salle }} - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="flex justify-between items-start mb-6 animate-fade-in-up">
+        <div>
+            <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">?? Salle {{ salle.numero_salle }}</h1>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Vue d�taill�e des caract�ristiques et des r�servations � venir.</p>
+        </div>
+        <a href="{{ url_for('salles.liste') }}" class="btn-outline px-6 py-3">
+            ? Retour � la liste
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-6 animate-fade-in-up">
+            <h2 class="text-xl font-semibold mb-4 text-white [&[data-theme=light]]:text-[#0f172a]">?? Informations</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">B�timent</p>
+                    <h3 class="text-lg font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ salle.batiment or 'N/A' }}</h3>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Type</p>
+                        <span class="inline-block px-3 py-1 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-semibold uppercase [&[data-theme=light]]:bg-[#3b82f6]/10 [&[data-theme=light]]:text-[#3b82f6]">
+                            {{ salle.type_salle|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Capacit�</p>
+                        <h3 class="text-lg font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ salle.capacite }} places</h3>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-2">Statut</p>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {% if salle.statut == 'disponible' %}bg-emerald-500/20 text-emerald-300 [&[data-theme=light]]:bg-emerald-500/10 [&[data-theme=light]]:text-emerald-700{% elif salle.statut == 'en_maintenance' %}bg-yellow-500/20 text-yellow-300 [&[data-theme=light]]:bg-yellow-500/10 [&[data-theme=light]]:text-yellow-700{% else %}bg-rose-500/20 text-rose-300 [&[data-theme=light]]:bg-rose-500/10 [&[data-theme=light]]:text-rose-700{% endif %}">
+                        {{ salle.statut|replace('_', ' ')|title }}
+                    </span>
+                </div>
+
+                <div class="border-t border-white/10 [&[data-theme=light]]:border-[#e2e8f0] pt-4">
+                    <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-2">�quipements</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% if salle.equipement_video %}
+                        <span class="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-300 [&[data-theme=light]]:bg-[#f1f5f9] [&[data-theme=light]]:text-[#475569] border border-white/20 [&[data-theme=light]]:border-[#cbd5e1]">?? Vid�o</span>
+                        {% endif %}
+                        {% if salle.equipement_informatique %}
+                        <span class="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-300 [&[data-theme=light]]:bg-[#f1f5f9] [&[data-theme=light]]:text-[#475569] border border-white/20 [&[data-theme=light]]:border-[#cbd5e1]">?? Informatique</span>
+                        {% endif %}
+                        {% if salle.tableau_interactif %}
+                        <span class="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-300 [&[data-theme=light]]:bg-[#f1f5f9] [&[data-theme=light]]:text-[#475569] border border-white/20 [&[data-theme=light]]:border-[#cbd5e1]">?? Tableau interactif</span>
+                        {% endif %}
+                        {% if salle.climatisation %}
+                        <span class="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-300 [&[data-theme=light]]:bg-[#f1f5f9] [&[data-theme=light]]:text-[#475569] border border-white/20 [&[data-theme=light]]:border-[#cbd5e1]">?? Climatisation</span>
+                        {% endif %}
+                        {% if not salle.equipement_video and not salle.equipement_informatique and not salle.tableau_interactif and not salle.climatisation %}
+                        <span class="text-xs text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">Aucun �quipement sp�cial</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 animate-fade-in-up">
+            <h2 class="text-xl font-semibold mb-4 text-white [&[data-theme=light]]:text-[#0f172a]">?? R�servations � venir</h2>
+            
+            {% if reservations %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                            <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Jour</th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Heure</th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Cours</th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Groupe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr class="border-b border-gold-700/10 hover:bg-white/5 [&[data-theme=light]]:border-[#e2e8f0] [&[data-theme=light]]:hover:bg-[#f8fafc] transition-colors">
+                            <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservation.creneau.jour.strftime('%d/%m/%Y') }}</td>
+                            <td class="py-4 px-4 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                                {{ reservation.creneau.heure_debut.strftime('%H:%M') }} - {{ reservation.creneau.heure_fin.strftime('%H:%M') }}
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservation.cours.code_cours }}</div>
+                                <div class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b]">{{ reservation.cours.nom_cours }}</div>
+                            </td>
+                            <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservation.cours.groupe.nom_groupe }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center py-12 text-gray-400 [&[data-theme=light]]:text-[#64748b]">Aucune r�servation � venir pour cette salle.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

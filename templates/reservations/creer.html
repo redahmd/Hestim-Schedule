@@ -1,0 +1,668 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Créer une Réservation - Hestim Schedule{% endblock %}
+
+{% block extra_css %}
+<style>
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 1.5rem;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(212, 175, 55, 0.2);
+        z-index: 0;
+    }
+    
+    [data-theme="light"] .step-indicator::before {
+        background: rgba(59, 130, 246, 0.2);
+    }
+    
+    .step {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .step-number {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background: rgba(212, 175, 55, 0.2);
+        border: 2px solid rgba(212, 175, 55, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #d4af37;
+        transition: all 0.3s ease;
+    }
+    
+    [data-theme="light"] .step-number {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+    }
+    
+    .step.active .step-number {
+        background: linear-gradient(135deg, #d4af37, #8b5cf6);
+        border-color: #d4af37;
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    }
+    
+    [data-theme="light"] .step.active .step-number {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border-color: #3b82f6;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    .step.completed .step-number {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        border-color: #10b981;
+        color: white;
+    }
+    
+    .step-label {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    [data-theme="light"] .step-label {
+        color: #64748b;
+    }
+    
+    .step.active .step-label {
+        color: #d4af37;
+        font-weight: 600;
+    }
+    
+    [data-theme="light"] .step.active .step-label {
+        color: #3b82f6;
+    }
+    
+    .form-step {
+        display: none;
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(139, 92, 246, 0.1));
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    [data-theme="light"] .info-card {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+        border-color: rgba(59, 130, 246, 0.2);
+    }
+    
+    .availability-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .availability-badge.available {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .availability-badge.unavailable {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .availability-badge.checking {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    
+    .salle-card {
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .salle-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .salle-card.selected {
+        border-color: #d4af37;
+        background: rgba(212, 175, 55, 0.1);
+    }
+    
+    [data-theme="light"] .salle-card.selected {
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .preview-card {
+        background: linear-gradient(135deg, rgba(21, 21, 32, 0.95), rgba(31, 31, 46, 0.9));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    [data-theme="light"] .preview-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+        border-color: rgba(203, 213, 225, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-6 py-10">
+    <!-- En-tête -->
+    <div class="mb-8 animate-fade-in-up">
+        <a href="{{ url_for('reservations.liste') }}" class="btn-outline inline-flex items-center gap-2 mb-4">
+            ← Retour à la liste
+        </a>
+        <div class="text-center">
+            <h1 class="text-4xl font-display font-bold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                ✨ Créer une Nouvelle Réservation
+            </h1>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg">
+                Remplissez les informations ci-dessous pour réserver une salle
+            </p>
+        </div>
+    </div>
+
+    <!-- Indicateur d'étapes -->
+    <div class="step-indicator mb-8">
+        <div class="step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Cours</div>
+        </div>
+        <div class="step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Date & Heure</div>
+        </div>
+        <div class="step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Salle</div>
+        </div>
+        <div class="step" data-step="4">
+            <div class="step-number">4</div>
+            <div class="step-label">Confirmation</div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('reservations.creer') }}" id="reservationForm" class="glass-card p-8 animate-fade-in-up">
+        <!-- Étape 1: Sélection du cours -->
+        <div class="form-step active" id="step1">
+            <div class="mb-6">
+                <h2 class="text-2xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">📚 Sélectionnez le cours</h2>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Choisissez le cours pour lequel vous souhaitez réserver une salle</p>
+            </div>
+            
+            <div class="mb-6">
+                <label for="id_cours" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                    Cours <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                </label>
+                <select class="w-full px-4 py-4 rounded-lg bg-white/10 border-2 border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6] text-lg transition-all" id="id_cours" name="id_cours" required>
+                    <option value="">-- Sélectionner un cours --</option>
+                    {% for cours in cours_list %}
+            <option value="{{ cours.id_cours }}" 
+                data-effectif="{{ cours.groupe.effectif }}"
+                data-type="{{ cours.type_cours }}"
+                data-professeur="{% if cours.professeur and cours.professeur.prenom == 'Jean' and cours.professeur.nom == 'Dupont' %}Enseignant{% elif cours.professeur %}{{ cours.professeur.prenom }} {{ cours.professeur.nom }}{% else %}-{% endif %}"
+                data-groupe="{{ cours.groupe.nom_groupe }}">
+                        {{ cours.code_cours }} - {{ cours.nom_cours }} ({{ cours.groupe.nom_groupe }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="cours-info" class="info-card hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Type de cours</p>
+                        <p class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="cours-type">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Professeur</p>
+                        <p class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="cours-professeur">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Effectif du groupe</p>
+                        <p class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="cours-effectif">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end mt-6">
+                <button type="button" class="btn-gradient px-8 py-3" onclick="nextStep(2)">
+                    Suivant →
+                </button>
+            </div>
+        </div>
+
+        <!-- Étape 2: Date et heure -->
+        <div class="form-step" id="step2">
+            <div class="mb-6">
+                <h2 class="text-2xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">📅 Choisissez la date et l'heure</h2>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Sélectionnez le créneau horaire souhaité</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label for="jour" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Date <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="date" class="w-full px-4 py-4 rounded-lg bg-white/10 border-2 border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6] text-lg" id="jour" name="jour" required>
+                </div>
+                <div>
+                    <label for="heure_debut" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Heure début <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="time" class="w-full px-4 py-4 rounded-lg bg-white/10 border-2 border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6] text-lg" id="heure_debut" name="heure_debut" required>
+                </div>
+                <div>
+                    <label for="heure_fin" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Heure fin <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                    </label>
+                    <input type="time" class="w-full px-4 py-4 rounded-lg bg-white/10 border-2 border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6] text-lg" id="heure_fin" name="heure_fin" required>
+                </div>
+            </div>
+            
+            <div class="flex justify-between mt-6">
+                <button type="button" class="btn-outline px-8 py-3" onclick="prevStep(1)">
+                    ← Précédent
+                </button>
+                <button type="button" class="btn-gradient px-8 py-3" onclick="nextStep(3)">
+                    Suivant →
+                </button>
+            </div>
+        </div>
+
+        <!-- Étape 3: Sélection de la salle -->
+        <div class="form-step" id="step3">
+            <div class="mb-6">
+                <h2 class="text-2xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">🏢 Choisissez la salle</h2>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Sélectionnez une salle disponible pour votre réservation</p>
+            </div>
+            
+            <div id="availability-status" class="mb-6 hidden"></div>
+            
+            <div class="mb-6">
+                <label for="id_salle" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                    Salle <span class="text-rose-400 [&[data-theme=light]]:text-rose-600">*</span>
+                </label>
+                <select class="w-full px-4 py-4 rounded-lg bg-white/10 border-2 border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6] text-lg transition-all" id="id_salle" name="id_salle" required>
+                    <option value="">-- Sélectionner une salle --</option>
+                    {% for salle in salles_list %}
+                    <option value="{{ salle.id_salle }}" 
+                            data-capacite="{{ salle.capacite }}"
+                            data-type="{{ salle.type_salle }}"
+                            data-batiment="{{ salle.batiment }}">
+                        {{ salle.numero_salle }} - {{ salle.batiment }} ({{ salle.capacite }} places, {{ salle.type_salle|replace('_', ' ')|title }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="salle-info" class="info-card hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Capacité</p>
+                        <p class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="salle-capacite">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b] mb-1">Type</p>
+                        <p class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="salle-type">-</p>
+                    </div>
+                </div>
+                <div id="capacity-warning" class="mt-4 hidden">
+                    <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3">
+                        <p class="text-sm text-yellow-300 [&[data-theme=light]]:text-yellow-700">
+                            ⚠️ La capacité de cette salle pourrait être insuffisante pour le groupe sélectionné.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between mt-6">
+                <button type="button" class="btn-outline px-8 py-3" onclick="prevStep(2)">
+                    ← Précédent
+                </button>
+                <button type="button" class="btn-gradient px-8 py-3" onclick="nextStep(4)">
+                    Suivant →
+                </button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Confirmation -->
+        <div class="form-step" id="step4">
+            <div class="mb-6">
+                <h2 class="text-2xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">✅ Confirmez votre réservation</h2>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Vérifiez les informations avant de finaliser</p>
+            </div>
+            
+            <div class="preview-card p-6 rounded-xl mb-6">
+                <h3 class="text-lg font-semibold mb-4 text-white [&[data-theme=light]]:text-[#0f172a]">Récapitulatif</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
+                        <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Cours:</span>
+                        <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="preview-cours">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
+                        <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Date:</span>
+                        <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="preview-date">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
+                        <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Heure:</span>
+                        <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="preview-heure">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
+                        <span class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Salle:</span>
+                        <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]" id="preview-salle">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="commentaire" class="block text-sm font-semibold mb-3 text-white [&[data-theme=light]]:text-[#0f172a]">
+                    Commentaire (optionnel)
+                </label>
+                <textarea class="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="commentaire" name="commentaire" rows="4" placeholder="Ajoutez des notes ou instructions particulières..."></textarea>
+            </div>
+            
+            <div class="flex justify-between mt-6">
+                <button type="button" class="btn-outline px-8 py-3" onclick="prevStep(3)">
+                    ← Précédent
+                </button>
+                <button type="submit" class="btn-gradient px-8 py-3 text-lg">
+                    ✨ Créer la réservation
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+function updateStepIndicator(step) {
+    document.querySelectorAll('.step').forEach((s, index) => {
+        const stepNum = index + 1;
+        s.classList.remove('active', 'completed');
+        if (stepNum < step) {
+            s.classList.add('completed');
+        } else if (stepNum === step) {
+            s.classList.add('active');
+        }
+    });
+}
+
+function showStep(step) {
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step${step}`).classList.add('active');
+    updateStepIndicator(step);
+    currentStep = step;
+}
+
+function nextStep(step) {
+    // Validation avant de passer à l'étape suivante
+    if (step === 2) {
+        const cours = document.getElementById('id_cours').value;
+        if (!cours) {
+            alert('Veuillez sélectionner un cours');
+            return;
+        }
+        updateCoursInfo();
+    } else if (step === 3) {
+        const jour = document.getElementById('jour').value;
+        const heure_debut = document.getElementById('heure_debut').value;
+        const heure_fin = document.getElementById('heure_fin').value;
+        if (!jour || !heure_debut || !heure_fin) {
+            alert('Veuillez remplir tous les champs de date et heure');
+            return;
+        }
+        if (heure_fin <= heure_debut) {
+            alert('L\'heure de fin doit être après l\'heure de début');
+            return;
+        }
+        checkAvailability();
+    } else if (step === 4) {
+        const salle = document.getElementById('id_salle').value;
+        if (!salle) {
+            alert('Veuillez sélectionner une salle');
+            return;
+        }
+        updatePreview();
+    }
+    showStep(step);
+}
+
+function prevStep(step) {
+    showStep(step);
+}
+
+function updateCoursInfo() {
+    const coursSelect = document.getElementById('id_cours');
+    const selectedOption = coursSelect.options[coursSelect.selectedIndex];
+    const infoCard = document.getElementById('cours-info');
+    
+    if (selectedOption.value) {
+        infoCard.classList.remove('hidden');
+        document.getElementById('cours-type').textContent = selectedOption.dataset.type || '-';
+        document.getElementById('cours-professeur').textContent = selectedOption.dataset.professeur || '-';
+        document.getElementById('cours-effectif').textContent = selectedOption.dataset.effectif + ' étudiants' || '-';
+    } else {
+        infoCard.classList.add('hidden');
+    }
+}
+
+function updateSalleInfo() {
+    const salleSelect = document.getElementById('id_salle');
+    const selectedOption = salleSelect.options[salleSelect.selectedIndex];
+    const infoCard = document.getElementById('salle-info');
+    const warning = document.getElementById('capacity-warning');
+    const coursSelect = document.getElementById('id_cours');
+    const coursOption = coursSelect.options[coursSelect.selectedIndex];
+    
+    if (selectedOption.value) {
+        infoCard.classList.remove('hidden');
+        document.getElementById('salle-capacite').textContent = selectedOption.dataset.capacite + ' places';
+        document.getElementById('salle-type').textContent = selectedOption.dataset.type?.replace('_', ' ') || '-';
+        
+        // Vérifier la capacité
+        if (coursOption.value) {
+            const effectif = parseInt(coursOption.dataset.effectif);
+            const capacite = parseInt(selectedOption.dataset.capacite);
+            if (effectif > capacite) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+        }
+    } else {
+        infoCard.classList.add('hidden');
+        warning.classList.add('hidden');
+    }
+}
+
+function checkAvailability() {
+    const jour = document.getElementById('jour').value;
+    const heure_debut = document.getElementById('heure_debut').value;
+    const heure_fin = document.getElementById('heure_fin').value;
+    const salle_id = document.getElementById('id_salle').value;
+    const cours_id = document.getElementById('id_cours').value;
+    const statusDiv = document.getElementById('availability-status');
+    
+    if (!jour || !heure_debut || !heure_fin) {
+        return;
+    }
+    
+    statusDiv.classList.remove('hidden');
+    statusDiv.innerHTML = '<div class="availability-badge checking">🔄 Vérification de la disponibilité...</div>';
+    
+    fetch('{{ url_for("reservations.verifier_disponibilite") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jour: jour,
+            heure_debut: heure_debut,
+            heure_fin: heure_fin,
+            salle_id: salle_id || null,
+            cours_id: cours_id || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.disponible) {
+            statusDiv.innerHTML = '<div class="availability-badge available">✅ Créneau disponible</div>';
+        } else {
+            statusDiv.innerHTML = `<div class="availability-badge unavailable">❌ ${data.message || 'Créneau non disponible'}</div>`;
+        }
+    })
+    .catch(error => {
+        statusDiv.innerHTML = '<div class="availability-badge checking">⚠️ Impossible de vérifier la disponibilité</div>';
+    });
+}
+
+function updatePreview() {
+    const coursSelect = document.getElementById('id_cours');
+    const salleSelect = document.getElementById('id_salle');
+    const jour = document.getElementById('jour').value;
+    const heure_debut = document.getElementById('heure_debut').value;
+    const heure_fin = document.getElementById('heure_fin').value;
+    
+    if (coursSelect.value) {
+        document.getElementById('preview-cours').textContent = coursSelect.options[coursSelect.selectedIndex].text;
+    }
+    
+    if (jour) {
+        const date = new Date(jour);
+        document.getElementById('preview-date').textContent = date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    
+    if (heure_debut && heure_fin) {
+        document.getElementById('preview-heure').textContent = `${heure_debut} - ${heure_fin}`;
+    }
+    
+    if (salleSelect.value) {
+        document.getElementById('preview-salle').textContent = salleSelect.options[salleSelect.selectedIndex].text.split(' - ')[0];
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const coursSelect = document.getElementById('id_cours');
+    const salleSelect = document.getElementById('id_salle');
+    const jourInput = document.getElementById('jour');
+    const heureDebutInput = document.getElementById('heure_debut');
+    const heureFinInput = document.getElementById('heure_fin');
+    
+    // Définir la date minimale à aujourd'hui
+    jourInput.min = new Date().toISOString().split('T')[0];
+    
+    coursSelect.addEventListener('change', function() {
+        updateCoursInfo();
+        if (currentStep >= 3) {
+            updateSalleInfo();
+        }
+    });
+    
+    salleSelect.addEventListener('change', function() {
+        updateSalleInfo();
+        if (currentStep >= 3 && jourInput.value && heureDebutInput.value && heureFinInput.value) {
+            checkAvailability();
+        }
+    });
+    
+    jourInput.addEventListener('change', function() {
+        if (currentStep >= 3 && salleSelect.value && heureDebutInput.value && heureFinInput.value) {
+            checkAvailability();
+        }
+    });
+    
+    heureDebutInput.addEventListener('change', function() {
+        if (currentStep >= 3 && salleSelect.value && jourInput.value && heureFinInput.value) {
+            checkAvailability();
+        }
+    });
+    
+    heureFinInput.addEventListener('change', function() {
+        if (heureFinInput.value <= heureDebutInput.value) {
+            heureFinInput.setCustomValidity('L\'heure de fin doit être après l\'heure de début');
+        } else {
+            heureFinInput.setCustomValidity('');
+        }
+        if (currentStep >= 3 && salleSelect.value && jourInput.value && heureDebutInput.value) {
+            checkAvailability();
+        }
+    });
+    
+    // Validation de la capacité
+    function verifierCapacite() {
+        const coursOption = coursSelect.options[coursSelect.selectedIndex];
+        const salleOption = salleSelect.options[salleSelect.selectedIndex];
+        
+        if (coursOption.value && salleOption.value) {
+            const effectif = parseInt(coursOption.dataset.effectif);
+            const capacite = parseInt(salleOption.dataset.capacite);
+            
+            if (effectif > capacite) {
+                salleSelect.setCustomValidity(`La capacité de la salle (${capacite}) est insuffisante pour le groupe (${effectif} étudiants)`);
+                salleSelect.classList.add('border-rose-500');
+            } else {
+                salleSelect.setCustomValidity('');
+                salleSelect.classList.remove('border-rose-500');
+            }
+        }
+    }
+    
+    coursSelect.addEventListener('change', verifierCapacite);
+    salleSelect.addEventListener('change', verifierCapacite);
+});
+</script>
+{% endblock %}
+{% endblock %}
+

@@ -1,0 +1,114 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Modifier un professeur - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <a href="{{ url_for('professeurs.liste') }}"
+            class="text-gray-400 hover:text-white transition-colors mb-4 inline-flex items-center gap-2 [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:text-[#0f172a]">
+            <span>←</span> Retour à la liste
+        </a>
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">✏️ Modifier les
+            informations</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Mettez à jour le profil de {{ prof.prenom }} {{
+            prof.nom }}.</p>
+    </div>
+
+    <div class="glass-card p-6 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('professeurs.modifier', id=prof.id_professeur) }}" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nom et Prénom -->
+                <div>
+                    <label for="nom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Nom
+                        *</label>
+                    <input type="text" id="nom" name="nom" value="{{ prof.nom }}" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+                <div>
+                    <label for="prenom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Prénom
+                        *</label>
+                    <input type="text" id="prenom" name="prenom" value="{{ prof.prenom }}" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Email et Téléphone -->
+                <div class="md:col-span-2">
+                    <label for="email"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Email
+                        *</label>
+                    <input type="email" id="email" name="email" value="{{ prof.email }}" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <div>
+                    <label for="telephone"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone" value="{{ prof.telephone or '' }}"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Spécialité et Département -->
+                <div>
+                    <label for="specialite"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Spécialité</label>
+                    <input type="text" id="specialite" name="specialite" value="{{ prof.specialite or '' }}"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="departement"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Département</label>
+                    <input type="text" id="departement" name="departement" value="{{ prof.departement or '' }}"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Actif -->
+                <div class="md:col-span-2">
+                    <label
+                        class="flex items-center gap-2 cursor-pointer text-white [&[data-theme=light]]:text-[#0f172a]">
+                        <input type="checkbox" name="actif" {% if prof.actif %}checked{% endif %}
+                            class="rounded border-gray-500 text-emerald-500 focus:ring-emerald-500">
+                        <span class="font-semibold">Compte actif</span>
+                        <span class="text-xs text-gray-400 ml-2">(Décochez pour désactiver ce professeur sans le
+                            supprimer)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#cbd5e1]">
+                <button type="button" onclick="confirmDelete()"
+                    class="px-6 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors [&[data-theme=light]]:border-red-500/30 [&[data-theme=light]]:text-red-600 [&[data-theme=light]]:hover:bg-red-50">
+                    🗑️ Supprimer
+                </button>
+
+                <div class="flex gap-4">
+                    <a href="{{ url_for('professeurs.liste') }}"
+                        class="px-6 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn-gradient px-6 py-2 cursor-pointer">
+                        Mettre à jour
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Formulaire de suppression caché -->
+        <form id="delete-form" action="{{ url_for('professeurs.supprimer', id=prof.id_professeur) }}" method="POST"
+            class="hidden"></form>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce professeur ?\nImpossible de supprimer un professeur associé à des cours. Si c\'est le cas, désactivez son compte plutot.')) {
+            document.getElementById('delete-form').submit();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,215 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Liste des Réservations - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 animate-fade-in-up">
+        <div>
+            <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">📅 Réservations</h1>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez et consultez toutes les réservations du système.</p>
+        </div>
+        {% if current_user.role == 'administrateur' or current_user.role == 'enseignant' %}
+        <a href="{{ url_for('reservations.creer') }}" class="btn-gradient px-6 py-3 whitespace-nowrap">
+            ➕ Nouvelle réservation
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtres -->
+    <div class="glass-card mb-6 p-6 animate-fade-in-up">
+        <form method="GET" action="{{ url_for('reservations.liste') }}" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="statut" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Statut</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="statut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        <option value="confirmee" {% if statut == 'confirmee' %}selected{% endif %}>Confirmées</option>
+                        <option value="en_attente" {% if statut == 'en_attente' %}selected{% endif %}>En attente</option>
+                        <option value="annulee" {% if statut == 'annulee' %}selected{% endif %}>Annulées</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="date_debut" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Date début</label>
+                    <input type="date" class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="date_debut" name="date_debut" value="{{ date_debut }}">
+                </div>
+                <div>
+                    <label for="date_fin" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Date fin</label>
+                    <input type="date" class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="date_fin" name="date_fin" value="{{ date_fin }}">
+                </div>
+                {% if current_user.role == 'administrateur' %}
+                <div>
+                    <label for="salle_id" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Salle</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="salle_id" name="salle_id">
+                        <option value="">Toutes les salles</option>
+                        {% for salle in salles %}
+                        <option value="{{ salle.id_salle }}" {% if salle_id and salle_id|int == salle.id_salle %}selected{% endif %}>
+                            {{ salle.numero_salle }} - {{ salle.batiment }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="type_cours" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Type de cours</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="type_cours" name="type_cours">
+                        <option value="">Tous les types</option>
+                        <option value="CM" {% if type_cours == 'CM' %}selected{% endif %}>CM</option>
+                        <option value="TD" {% if type_cours == 'TD' %}selected{% endif %}>TD</option>
+                        <option value="TP" {% if type_cours == 'TP' %}selected{% endif %}>TP</option>
+                        <option value="projet" {% if type_cours == 'projet' %}selected{% endif %}>Projet</option>
+                        <option value="examen" {% if type_cours == 'examen' %}selected{% endif %}>Examen</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="professeur_id" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Professeur</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="professeur_id" name="professeur_id">
+                        <option value="">Tous les professeurs</option>
+                        {% for prof in professeurs %}
+                        <option value="{{ prof.id_professeur }}" {% if professeur_id and professeur_id|int == prof.id_professeur %}selected{% endif %}>
+                            {% if prof.prenom == 'Jean' and prof.nom == 'Dupont' %}
+                                Enseignant
+                            {% else %}
+                                {{ prof.prenom }} {{ prof.nom }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="groupe_id" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Groupe</label>
+                    <select class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]" id="groupe_id" name="groupe_id">
+                        <option value="">Tous les groupes</option>
+                        {% for groupe in groupes %}
+                        <option value="{{ groupe.id_groupe }}" {% if groupe_id and groupe_id|int == groupe.id_groupe %}selected{% endif %}>
+                            {{ groupe.nom_groupe }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="btn-gradient w-full px-6 py-2">
+                        🔍 Filtrer
+                    </button>
+                </div>
+                {% else %}
+                <div class="flex items-end">
+                    <button type="submit" class="btn-gradient w-full px-6 py-2">
+                        🔍 Filtrer
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+        
+        {% if current_user.role == 'administrateur' or current_user.role == 'enseignant' %}
+        <div class="mt-4 flex flex-wrap justify-end gap-3">
+            <a href="{{ url_for('reservations.export', statut=statut or '', date_debut=date_debut or '', date_fin=date_fin or '') }}" class="btn-outline px-4 py-2 text-sm">
+                📊 Export CSV
+            </a>
+            <a href="{{ url_for('reservations.planning') }}" class="btn-outline px-4 py-2 text-sm">
+                📆 Voir le planning
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Liste des réservations -->
+    <div class="glass-card p-6 animate-fade-in-up">
+        {% if reservations %}
+        <div class="mb-4 flex items-center justify-between">
+            <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">
+                <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservations|length }}</span> réservation{{ 's' if reservations|length > 1 else '' }} trouvée{{ 's' if reservations|length > 1 else '' }}
+            </p>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Date</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Heure</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Cours</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Salle</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Professeur</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Groupe</th>
+                        <th class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Statut</th>
+                        <th class="text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr class="border-b border-gold-700/10 hover:bg-white/5 [&[data-theme=light]]:border-[#e2e8f0] [&[data-theme=light]]:hover:bg-[#f8fafc] transition-colors">
+                        <td class="py-4 px-4 text-sm font-medium text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservation.creneau.jour.strftime('%d/%m/%Y') }}</td>
+                        <td class="py-4 px-4 text-sm text-gray-300 [&[data-theme=light]]:text-[#475569]">
+                            <div class="font-medium">{{ reservation.creneau.heure_debut.strftime('%H:%M') }}</div>
+                            <div class="text-xs text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">{{ reservation.creneau.heure_fin.strftime('%H:%M') }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ reservation.cours.code_cours }}</div>
+                            <div class="text-xs text-gray-400 [&[data-theme=light]]:text-[#64748b]">{{ reservation.cours.nom_cours }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="inline-block px-2 py-1 rounded-md bg-gold-700/20 text-gold-300 text-xs font-medium [&[data-theme=light]]:bg-[#3b82f6]/10 [&[data-theme=light]]:text-[#3b82f6]">{{ reservation.salle.numero_salle }}</span>
+                            <div class="text-xs text-gray-400 mt-1 [&[data-theme=light]]:text-[#94a3b8]">{{ reservation.salle.batiment }}</div>
+                        </td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">
+                            {% if reservation.cours.professeur %}
+                                {% if reservation.cours.professeur.prenom == 'Jean' and reservation.cours.professeur.nom == 'Dupont' %}
+                                    Enseignant
+                                {% else %}
+                                    {{ reservation.cours.professeur.prenom }} {{ reservation.cours.professeur.nom }}
+                                {% endif %}
+                            {% else %}
+                                <span class="text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">
+                            {% if reservation.cours.groupe %}
+                                {{ reservation.cours.groupe.nom_groupe }}
+                            {% else %}
+                                <span class="text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="inline-block px-2 py-1 rounded-md text-xs font-semibold {% if reservation.statut == 'confirmee' %}bg-emerald-500/20 text-emerald-300 [&[data-theme=light]]:bg-emerald-500/10 [&[data-theme=light]]:text-emerald-700{% elif reservation.statut == 'en_attente' %}bg-yellow-500/20 text-yellow-300 [&[data-theme=light]]:bg-yellow-500/10 [&[data-theme=light]]:text-yellow-700{% else %}bg-rose-500/20 text-rose-300 [&[data-theme=light]]:bg-rose-500/10 [&[data-theme=light]]:text-rose-700{% endif %}">
+                                {{ reservation.statut|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ url_for('reservations.detail', id=reservation.id_reservation) }}" class="btn-outline px-3 py-1.5 text-xs" title="Voir les détails">
+                                    👁️ Voir
+                                </a>
+                                {% if reservation.statut == 'confirmee' and (current_user.role == 'administrateur' or current_user.role == 'enseignant') %}
+                                <a href="{{ url_for('reservations.modifier', id=reservation.id_reservation) }}" class="btn-outline px-3 py-1.5 text-xs border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20 [&[data-theme=light]]:border-yellow-500 [&[data-theme=light]]:text-yellow-600 [&[data-theme=light]]:hover:bg-yellow-50" title="Modifier">
+                                    ✏️ Modifier
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📅</div>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg mb-2">Aucune réservation trouvée</p>
+            <p class="text-gray-500 [&[data-theme=light]]:text-[#94a3b8] text-sm">Essayez de modifier vos critères de recherche ou créez une nouvelle réservation.</p>
+            {% if current_user.role == 'administrateur' or current_user.role == 'enseignant' %}
+            <div class="mt-6">
+                <a href="{{ url_for('reservations.creer') }}" class="btn-gradient px-6 py-3 inline-block">
+                    ➕ Créer une réservation
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

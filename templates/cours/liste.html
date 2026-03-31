@@ -1,0 +1,218 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Liste des Cours - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">📚
+                    Cours</h1>
+                <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Gérez et consultez tous les cours du
+                    système.</p>
+            </div>
+            {% if current_user.role == 'administrateur' %}
+            <div class="flex gap-3">
+                <a href="{{ url_for('cours.liste_groupes') }}" class="btn-outline px-4 py-2 text-sm">
+                    👥 Groupes
+                </a>
+                <a href="{{ url_for('cours.creer_groupe') }}" class="btn-outline px-4 py-2 text-sm">
+                    ➕ Nouveau Groupe
+                </a>
+                <a href="{{ url_for('cours.creer') }}" class="btn-gradient px-4 py-2 text-sm">
+                    ➕ Nouveau Cours
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="glass-card mb-6 p-6 animate-fade-in-up">
+        <form method="GET" action="{{ url_for('cours.liste') }}" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="type"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Type de
+                        cours</label>
+                    <select
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        id="type" name="type">
+                        <option value=""
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            Tous les types</option>
+                        <option value="CM" {% if type_cours=='CM' %}selected{% endif %}
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            CM</option>
+                        <option value="TD" {% if type_cours=='TD' %}selected{% endif %}
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            TD</option>
+                        <option value="TP" {% if type_cours=='TP' %}selected{% endif %}
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            TP</option>
+                        <option value="projet" {% if type_cours=='projet' %}selected{% endif %}
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            Projet</option>
+                        <option value="examen" {% if type_cours=='examen' %}selected{% endif %}
+                            class="bg-[#1e293b] text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:text-[#0f172a]">
+                            Examen</option>
+                    </select>
+                </div>
+                {% if current_user.role == 'administrateur' %}
+                <div>
+                    <label for="professeur_id"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Professeur</label>
+                    <select
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        id="professeur_id" name="professeur_id" style="color: white;">
+                        <option value="" style="background-color: #1e293b; color: white;">Tous les professeurs</option>
+                        {% for prof in professeurs %}
+                        <option value="{{ prof.id_professeur }}" {% if professeur_id and
+                            professeur_id|int==prof.id_professeur %}selected{% endif %}
+                            style="background-color: #1e293b; color: white;">
+                            {% if prof.prenom == 'Jean' and prof.nom == 'Dupont' %}
+                            Enseignant
+                            {% else %}
+                            {{ prof.prenom }} {{ prof.nom }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="groupe_id"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Groupe</label>
+                    <select
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        id="groupe_id" name="groupe_id" style="color: white;">
+                        <option value="" style="background-color: #1e293b; color: white;">Tous les groupes</option>
+                        {% for grp in groupes %}
+                        <option value="{{ grp.id_groupe }}" {% if groupe_id and groupe_id|int==grp.id_groupe
+                            %}selected{% endif %} style="background-color: #1e293b; color: white;">
+                            {{ grp.nom_groupe }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div>
+                    <label for="semestre"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Semestre</label>
+                    <input type="number" min="1" max="10"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        id="semestre" name="semestre" value="{{ semestre or '' }}" placeholder="Ex: 1, 2, 3...">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-3">
+                    <label for="recherche"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Recherche</label>
+                    <input type="text"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        id="recherche" name="recherche" value="{{ recherche }}" placeholder="Code ou nom du cours">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="btn-gradient w-full px-6 py-2">
+                        🔍 Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des cours -->
+    <div class="glass-card p-6 animate-fade-in-up">
+        {% if cours_list %}
+        <div class="mb-4 flex items-center justify-between">
+            <p class="text-sm text-gray-400 [&[data-theme=light]]:text-[#64748b]">
+                <span class="font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{ cours_list|length
+                    }}</span> cours trouvé{{ 's' if cours_list|length > 1 else '' }}
+            </p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Code</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Nom</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Type</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Professeur</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Groupe</th>
+                        <th
+                            class="text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Heures</th>
+                        <th
+                            class="text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400 [&[data-theme=light]]:text-[#475569]">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cours in cours_list %}
+                    <tr
+                        class="border-b border-gold-700/10 hover:bg-white/5 [&[data-theme=light]]:border-[#e2e8f0] [&[data-theme=light]]:hover:bg-[#f8fafc] transition-colors">
+                        <td class="py-4 px-4 font-semibold text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                            cours.code_cours }}</td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">{{ cours.nom_cours
+                            }}</td>
+                        <td class="py-4 px-4">
+                            <span
+                                class="inline-block px-2 py-1 rounded-md bg-purple-500/20 text-purple-300 text-xs font-semibold [&[data-theme=light]]:bg-[#3b82f6]/10 [&[data-theme=light]]:text-[#3b82f6]">{{
+                                cours.type_cours }}</span>
+                        </td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">
+                            {% if cours.professeur %}
+                            {{ cours.professeur.prenom }} {{ cours.professeur.nom }}
+                            {% else %}
+                            <span class="text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">
+                            {% if cours.groupe %}
+                            {{ cours.groupe.nom_groupe }}
+                            {% else %}
+                            <span class="text-gray-400 [&[data-theme=light]]:text-[#94a3b8]">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-sm text-white [&[data-theme=light]]:text-[#0f172a]">{{
+                            cours.nombre_heures }}h</td>
+                        <td class="py-4 px-4 text-right">
+                            <a href="{{ url_for('cours.detail', id=cours.id_cours) }}"
+                                class="btn-outline px-3 py-1.5 text-xs">
+                                👁️
+                            </a>
+                            {% if current_user.role == 'administrateur' %}
+                            <a href="{{ url_for('cours.modifier', id=cours.id_cours) }}"
+                                class="px-3 py-1.5 rounded-lg border border-white/20 text-white hover:bg-white/10 text-xs transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                                ✏️
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📚</div>
+            <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b] text-lg mb-2">Aucun cours trouvé</p>
+            <p class="text-gray-500 [&[data-theme=light]]:text-[#94a3b8] text-sm">Essayez de modifier vos critères de
+                recherche.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Ajouter un étudiant - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <a href="{{ url_for('etudiants.liste') }}"
+            class="text-gray-400 hover:text-white transition-colors mb-4 inline-flex items-center gap-2 [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:text-[#0f172a]">
+            <span>←</span> Retour à la liste
+        </a>
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">➕ Ajouter un
+            étudiant</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Inscrivez un nouvel étudiant.</p>
+    </div>
+
+    <div class="glass-card p-6 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('etudiants.creer') }}" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nom et Prénom -->
+                <div>
+                    <label for="nom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Nom
+                        *</label>
+                    <input type="text" id="nom" name="nom" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+                <div>
+                    <label for="prenom"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Prénom
+                        *</label>
+                    <input type="text" id="prenom" name="prenom" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                </div>
+
+                <!-- Email -->
+                <div class="md:col-span-2">
+                    <label for="email"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Email
+                        *</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="prenom.nom@hestim.ma">
+                </div>
+
+                <!-- Niveau et Groupe -->
+                <div>
+                    <label for="niveau"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Niveau</label>
+                    <select id="niveau" name="niveau"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                        <option value="" class="text-gray-900">Sélectionner...</option>
+                        <option value="Licence 1" class="text-gray-900">Licence 1</option>
+                        <option value="Licence 2" class="text-gray-900">Licence 2</option>
+                        <option value="Licence 3" class="text-gray-900">Licence 3</option>
+                        <option value="Master 1" class="text-gray-900">Master 1</option>
+                        <option value="Master 2" class="text-gray-900">Master 2</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="id_groupe"
+                        class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">Groupe</label>
+                    <select id="id_groupe" name="id_groupe"
+                        class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:focus:ring-[#3b82f6]">
+                        <option value="" class="text-gray-900">Aucun groupe</option>
+                        {% for grp in groupes %}
+                        <option value="{{ grp.id_groupe }}" class="text-gray-900">
+                            {{ grp.nom_groupe }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-end gap-4 pt-4 border-t border-white/10 [&[data-theme=light]]:border-[#cbd5e1]">
+                <a href="{{ url_for('etudiants.liste') }}"
+                    class="px-6 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#64748b] [&[data-theme=light]]:hover:bg-gray-100">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-gradient px-6 py-2 cursor-pointer">
+                    Ajouter l'étudiant
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

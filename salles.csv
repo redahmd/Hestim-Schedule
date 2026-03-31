@@ -1,0 +1,21 @@
+Numero_Salle,Batiment,Type_Salle,Capacite
+B949,Bâtiment B,labo_informatique,20
+A195,Bâtiment B,amphi,50
+A181,Bâtiment A,salle_reunion,30
+A137,Bâtiment C,amphi,100
+B218,Bâtiment C,amphi,20
+C031,Bâtiment B,salle_reunion,200
+A762,Bâtiment C,amphi,100
+C832,Bâtiment C,labo_informatique,200
+B318,Bâtiment B,labo_sciences,50
+E415,Bâtiment C,salle_reunion,50
+A548,Bâtiment B,salle_reunion,40
+A793,Bâtiment C,labo_sciences,200
+B436,Bâtiment A,classe,100
+C484,Bâtiment B,labo_informatique,100
+B259,Bâtiment C,labo_sciences,40
+C843,Bâtiment C,labo_informatique,40
+B403,Bâtiment C,labo_sciences,30
+C512,Bâtiment B,labo_informatique,200
+C298,Bâtiment A,salle_reunion,40
+E124,Bâtiment C,labo_informatique,50

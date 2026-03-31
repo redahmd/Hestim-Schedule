@@ -1,0 +1,83 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Créer un Groupe - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">➕ Créer un Nouveau Groupe</h1>
+        <p class="text-gray-400 [&[data-theme=light]]:text-[#64748b]">Ajoutez un nouveau groupe d'étudiants au système.</p>
+    </div>
+
+    <div class="glass-card p-8 animate-fade-in-up">
+        <form method="POST" action="{{ url_for('cours.creer_groupe') }}" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="nom_groupe" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Nom du groupe <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="nom_groupe" name="nom_groupe" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: G1, Groupe A, L3-INFO-1">
+                </div>
+
+                <div>
+                    <label for="niveau" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Niveau <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="niveau" name="niveau" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: L3, M1, L1">
+                </div>
+
+                <div>
+                    <label for="filiere" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Filière
+                    </label>
+                    <input type="text" id="filiere" name="filiere"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: Informatique, Mathématiques">
+                </div>
+
+                <div>
+                    <label for="effectif" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Effectif <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="effectif" name="effectif" min="1" required
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: 30">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="annee_academique" class="block text-sm font-semibold mb-2 text-white [&[data-theme=light]]:text-[#0f172a]">
+                        Année académique
+                    </label>
+                    <input type="text" id="annee_academique" name="annee_academique"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 [&[data-theme=light]]:bg-white [&[data-theme=light]]:border-[#cbd5e1] [&[data-theme=light]]:text-[#0f172a] [&[data-theme=light]]:placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-gold-500 [&[data-theme=light]]:focus:ring-[#3b82f6]"
+                        placeholder="Ex: 2024-2025">
+                </div>
+            </div>
+
+            <div class="mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 [&[data-theme=light]]:bg-[#eff6ff] [&[data-theme=light]]:border-[#3b82f6]/30">
+                <h3 class="text-sm font-semibold text-blue-300 mb-2 [&[data-theme=light]]:text-[#1e40af]">💡 Après la création du groupe :</h3>
+                <ul class="text-xs text-blue-200 space-y-1 [&[data-theme=light]]:text-[#475569]">
+                    <li>• Le groupe sera disponible pour créer des cours</li>
+                    <li>• Vous pourrez associer des étudiants à ce groupe</li>
+                    <li>• Les réservations pourront être créées pour les cours de ce groupe</li>
+                </ul>
+            </div>
+
+            <div class="flex items-center justify-end gap-4 pt-4 border-t border-gold-700/20 [&[data-theme=light]]:border-[#cbd5e1]">
+                <a href="{{ url_for('cours.liste_groupes') }}" class="btn-outline px-6 py-2">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-gradient px-6 py-2">
+                    ✅ Créer le groupe
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
