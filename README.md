@@ -1,10 +1,9 @@
-# Plateforme de Gestion de Salles - Projet PACTE
+# Plateforme de Gestion de Salles "Hestim Schedule" - Projet PACTE
 
 Application web de gestion et réservation de salles pour la planification automatique des cours, la gestion des réservations de salles, et la synchronisation des emplois du temps des enseignants et étudiants.
 
 ## 🚀 Fonctionnalités
 
-### Semestre 1 (Implémenté)
 - ✅ Authentification et gestion des rôles (Administrateur, Enseignant, Étudiant)
 - ✅ Consultation des salles disponibles avec filtres
 - ✅ Planification de cours (création, modification, annulation)
