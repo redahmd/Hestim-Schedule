@@ -98,11 +98,5 @@ Consultez le fichier `README.md` pour plus de détails sur :
 - Les technologies utilisées
 - Les fonctionnalités détaillées
 
-## 🎯 Prochaines étapes (Semestre 2)
 
-Pour le Semestre 2, il faudra ajouter :
-- Module d'analyse et statistiques
-- Génération automatique des emplois du temps
-- Visualisation avec graphiques (Chart.js, Plotly)
-- Déploiement en production
 
