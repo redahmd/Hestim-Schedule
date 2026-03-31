@@ -32,11 +32,11 @@ Utilisez l'un des comptes de démonstration :
 - **Mot de passe**: `admin123`
 
 ### Enseignant
-- **Email**: `jean.dupont@example.com`
+- **Email**: `prof@example.com`
 - **Mot de passe**: `password123`
 
 ### Étudiant
-- **Email**: `pierre.durand@example.com`
+- **Email**: `etudiant@example.com`
 - **Mot de passe**: `password123`
 
 ## 📋 Fonctionnalités disponibles
