@@ -4,15 +4,34 @@ Application web de gestion et réservation de salles pour la planification autom
 
 ## 🚀 Fonctionnalités
 
-- ✅ Authentification et gestion des rôles (Administrateur, Enseignant, Étudiant)
-- ✅ Consultation des salles disponibles avec filtres
-- ✅ Planification de cours (création, modification, annulation)
-- ✅ Détection automatique des conflits de réservation
-  - Conflit de salle (même salle, même créneau)
-  - Conflit de professeur (même professeur, même créneau)
-  - Conflit de groupe (même groupe, même créneau)
-- ✅ Vérification de la capacité des salles
-- ✅ Interface web moderne avec Bootstrap 5
+🔐 Gestion des Utilisateurs & Rôles
+➜ ✅ Double Authentification : Connexion sécurisée via Flask-Login avec protection des routes.
+➜ ✅ Multi-Rôles : Espaces dédiés pour Administrateurs, Enseignants et Étudiants.
+➜ ✅ Profil Avancé : Gestion du profil utilisateur avec option de changement de mot de passe.
+➜ ✅ Système d'Approbation : Validation manuelle des comptes administrateurs par le Super-Admin.
+📅 Planification & Gestion de Calendrier
+➜ ✅ CRUD Complet : Création, modification et suppression dynamique des réservations.
+➜ ✅ Planning Global : Visualisation par calendrier avec filtres intelligents (Prof, Salle, Groupe).
+➜ ✅ Cycle de Validation : Workflow de réservation (En attente ➜ Confirmée ➜ Annulée).
+➜ ✅ Génération Automatique : Outil intelligent pour assister la création rapide du planning.
+🛡️ Algorithme Anti-Conflits (Intelligent)
+➜ 🟢 Conflit Salle : Blocage automatique si une salle est déjà occupée sur le créneau.
+➜ 🟢 Conflit Professeur : Empêche un enseignant d'être assigné à deux cours différents simultanément.
+➜ 🟢 Conflit Groupe : Garantit qu'un groupe d'étudiants n'a qu'un seul cours à la fois.
+➜ 🟢 Vérification Capacité : Alerte si l'effectif du groupe dépasse la capacité réelle de la salle.
+📊 Analyse de Données & KPIs (Data Science)
+➜ ✅ Dashboard Analytique : Visualisation en temps réel via Chart.js (Donuts, Barres, Lignes).
+➜ ✅ Heatmaps d'Occupation : Analyse visuelle des pics de fréquentation par heure et par jour.
+➜ ✅ Matrice de Corrélation : Analyse Pandas croisant les types de salles et les jours de la semaine.
+➜ ✅ Expertise Excel : Exportation automatique de tous les rapports au format .xlsx pour archivage.
+💎 Design & Expérience Utilisateur (Premium UI)
+➜ 🟢 Aesthétique Moderne : Interface fluide avec effets de transparence "Glassmorphism".
+➜ 🟢 Navigation Intuitive : Sidebar dynamique et Header intelligent (Sticky NavBar).
+➜ 🟢 Alertes Temps Réel : Système de notifications Toasts et centre de notifications centralisé.
+➜ 🟢 Full Responsive : Expérience utilisateur parfaite sur Mobile, Tablette et Desktop.
+📂 Administration des Ressources
+➜ ✅ Gestion Salles : Monitoring complet des équipements (Capacité, Type, Bâtiment).
+➜ ✅ Gestion Académique : Administration des étudiants par promotion et des cours par code.
 
 ## 📋 Prérequis
 
