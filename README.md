@@ -157,9 +157,6 @@ Ce projet est développé dans le cadre du projet PACTE - Cycle Ingénieur 2025/
 
 ## 👥 Auteur
 
-Équipe de développement - Projet PACTE
+Équipe de développement - Projet PACTE :
 Reda Hamidi
-Soufiane Hilali
-Zakaria Sabhi
-Zakaria Naji
 
