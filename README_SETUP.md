@@ -1,4 +1,4 @@
-# Guide d'installation - Projet Pacte
+# Guide d'installation - Projet Pacte "Hestim Schedule"
 
 ## Installation rapide
 
