@@ -37,8 +37,8 @@ Le serveur sera accessible sur : **http://localhost:5000**
 Après l'initialisation, vous pouvez vous connecter avec :
 
 - **Administrateur** : `admin@example.com` / `admin123`
-- **Enseignant** : `jean.dupont@example.com` / `password123`
-- **Étudiant** : `pierre.durand@example.com` / `password123`
+- **Enseignant** : `prof@example.com` / `password123`
+- **Étudiant** : `etudiant@example.com` / `password123`
 
 ## Structure du projet
 
