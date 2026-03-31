@@ -52,11 +52,11 @@ Après l'initialisation de la base de données, vous pouvez vous connecter avec:
   - Mot de passe: `admin123`
 
 - **Enseignant**: 
-  - Email: `jean.dupont@example.com`
+  - Email: `prof@example.com`
   - Mot de passe: `password123`
 
 - **Étudiant**: 
-  - Email: `pierre.durand@example.com`
+  - Email: `etudiant@example.com`
   - Mot de passe: `password123`
 
 ## 📁 Structure du projet
@@ -124,15 +124,6 @@ L'application utilise SQLite par défaut (fichier `gestion_salles.db`). Le sché
 - Protection CSRF (à implémenter pour la production)
 - Validation des données côté serveur
 
-## 📝 Notes
-
-- Cette application est un prototype pour le Semestre 1
-- Pour la production, il faudrait:
-  - Ajouter la protection CSRF
-  - Utiliser une base de données plus robuste (PostgreSQL, MySQL)
-  - Implémenter les tests unitaires
-  - Ajouter la gestion des erreurs avancée
-  - Déployer sur un serveur de production
 
 ## 🛠️ Technologies utilisées
 
@@ -149,4 +140,8 @@ Ce projet est développé dans le cadre du projet PACTE - Cycle Ingénieur 2025/
 ## 👥 Auteur
 
 Équipe de développement - Projet PACTE
+Reda Hamidi
+Soufiane Hilali
+Zakaria Sabhi
+Zakaria Naji
 
