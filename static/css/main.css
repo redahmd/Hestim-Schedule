@@ -36,6 +36,8 @@ body {
     display: flex;
     min-height: 100vh;
     flex-direction: row;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .sidebar {
@@ -109,8 +111,10 @@ body {
     margin-left: 280px;
     /* Width of sidebar */
     width: calc(100% - 280px);
+    max-width: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* Top Branding Bar (Le dégradé bleu foncé Hestim) */
@@ -177,7 +181,8 @@ body {
 
     .main-content {
         margin-left: 0;
-        width: 100%;
+        width: 100vw;
+        max-width: 100vw;
     }
 }
 
