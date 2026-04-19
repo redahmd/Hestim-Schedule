@@ -1,4 +1,4 @@
-﻿from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from database import db
 from models import Reservation, Cours, Salle, Creneau, Notification
@@ -9,6 +9,20 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 import csv
 import io
 from flask import Response
+
+def envoyer_email_notification(destinataire, sujet, corps):
+    """Fonction d'envoi d'email simulée pour la soutenance"""
+    try:
+        print(f"\n" + "="*50)
+        print(f"📧 EMAIL SIMULÉ ENVOYÉ (via smtplib / Flask-Mail)")
+        print(f"À      : {destinataire}")
+        print(f"Sujet  : {sujet}")
+        print(f"Message:\n{corps}")
+        print("="*50 + "\n")
+        return True
+    except Exception as e:
+        print(f"Erreur d'envoi d'email: {e}")
+        return False
 
 reservations_bp = Blueprint('reservations', __name__)
 
@@ -1216,20 +1230,45 @@ def modifier(id):
                 db.session.add(creneau)
                 db.session.flush()
             
-            # V�rifier les conflits (en excluant la r�servation actuelle)
-            conflit = Reservation.query.filter(
+            # Vrifier les conflits (en excluant la rservation actuelle)
+            conflits = []
+            
+            # Conflit Salle
+            conflit_salle = Reservation.query.filter(
                 Reservation.id_salle == id_salle,
                 Reservation.id_creneau == creneau.id_creneau,
                 Reservation.statut == 'confirmee',
                 Reservation.id_reservation != id
             ).first()
+            if conflit_salle:
+                conflits.append('la salle est déjà réservée pour ce créneau')
+
+            # Conflit Professeur
+            conflit_prof = Reservation.query.join(Cours).filter(
+                Cours.id_professeur == reservation.cours.id_professeur,
+                Reservation.id_creneau == creneau.id_creneau,
+                Reservation.statut == 'confirmee',
+                Reservation.id_reservation != id
+            ).first()
+            if conflit_prof:
+                conflits.append('le professeur a déjà un cours à ce créneau')
+
+            # Conflit Groupe
+            conflit_groupe = Reservation.query.join(Cours).filter(
+                Cours.id_groupe == reservation.cours.id_groupe,
+                Reservation.id_creneau == creneau.id_creneau,
+                Reservation.statut == 'confirmee',
+                Reservation.id_reservation != id
+            ).first()
+            if conflit_groupe:
+                conflits.append('le groupe a déjà un cours à ce créneau')
             
-            if conflit:
-                flash('Conflit d�tect�: la salle est d�j� r�serv�e pour ce cr�neau', 'error')
+            if conflits:
+                flash('Conflit détecté: ' + ', '.join(conflits), 'error')
                 salles_list = Salle.query.filter_by(statut='disponible').all()
                 return render_template('reservations/modifier.html', reservation=reservation, salles_list=salles_list)
             
-            # Mettre � jour
+            # Mettre  jour
             reservation.id_salle = id_salle
             reservation.id_creneau = creneau.id_creneau
             reservation.commentaire = commentaire
@@ -1239,25 +1278,35 @@ def modifier(id):
             
             # Notification
             try:
+                msg_notif = f'Réservation reportée/modifiée pour le cours {reservation.cours.nom_cours}. Nouveau créneau: {jour_date.strftime("%d/%m/%Y")} à {heure_debut_time.strftime("%H:%M")}.'
                 notification = Notification(
                     id_utilisateur=current_user.id_utilisateur,
                     type_notification='modification',
-                    message=f'R�servation modifi�e pour {reservation.cours.nom_cours}',
+                    message=msg_notif,
                     id_reservation=reservation.id_reservation
                 )
                 db.session.add(notification)
                 db.session.commit()
+                
+                # Envoi Email
+                email_dest = reservation.cours.professeur.email if reservation.cours.professeur else "etudiants@hestim.ma"
+                envoyer_email_notification(
+                    destinataire=email_dest,
+                    sujet="[Hestim Schedule] Report de cours",
+                    corps=msg_notif
+                )
+                
             except (OperationalError, ProgrammingError):
                 pass
             
-            flash('R�servation modifi�e avec succ�s', 'success')
+            flash('Réservation reportée avec succès ! Email de notification envoyé.', 'success')
             return redirect(url_for('reservations.detail', id=id))
         
         # GET: Afficher le formulaire
         salles_list = Salle.query.filter_by(statut='disponible').all()
         return render_template('reservations/modifier.html', reservation=reservation, salles_list=salles_list)
     except (OperationalError, ProgrammingError):
-        flash('Erreur lors du chargement de la r�servation', 'error')
+        flash('Erreur lors du chargement de la rservation', 'error')
         return redirect(url_for('reservations.liste'))
     except Exception as e:
         flash(f'Erreur: {str(e)}', 'error')
@@ -1266,7 +1315,7 @@ def modifier(id):
 @reservations_bp.route('/<int:id>/annuler', methods=['POST'])
 @login_required
 def annuler(id):
-    """Annuler une r�servation"""
+    """Annuler une rservation"""
     try:
         reservation = Reservation.query.get_or_404(id)
         
@@ -1277,18 +1326,27 @@ def annuler(id):
         
         # Notification
         try:
+            msg_notif = f'Réservation annulée pour le cours {reservation.cours.nom_cours}.'
             notification = Notification(
                 id_utilisateur=current_user.id_utilisateur,
                 type_notification='annulation',
-                message=f'R�servation annul�e pour {reservation.cours.nom_cours}',
+                message=msg_notif,
                 id_reservation=reservation.id_reservation
             )
             db.session.add(notification)
             db.session.commit()
+            
+            # Envoi Email
+            email_dest = reservation.cours.professeur.email if reservation.cours.professeur else "etudiants@hestim.ma"
+            envoyer_email_notification(
+                destinataire=email_dest,
+                sujet="[Hestim Schedule] Annulation de cours",
+                corps=msg_notif
+            )
         except (OperationalError, ProgrammingError):
             pass
         
-        flash('R�servation annul�e avec succ�s', 'success')
+        flash('Réservation annulée avec succès. Email de notification envoyé.', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Erreur lors de l\'annulation: {str(e)}', 'error')

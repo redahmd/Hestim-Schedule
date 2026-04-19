@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Détails de la Réservation - Hestim Schedule{% endblock %}
 
@@ -118,8 +118,9 @@
             'enseignant') %}
             <div class="flex gap-4 mt-6 pt-6 border-t border-white/10 [&[data-theme=light]]:border-[#e2e8f0]">
                 <a href="{{ url_for('reservations.modifier', id=reservation.id_reservation) }}"
-                    class="btn-outline px-6 py-3 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20 [&[data-theme=light]]:border-yellow-500 [&[data-theme=light]]:text-yellow-600 [&[data-theme=light]]:hover:bg-yellow-50">
-                    ✏️ Modifier
+                    class="btn-outline px-6 py-3 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20 [&[data-theme=light]]:border-yellow-500 [&[data-theme=light]]:text-yellow-600 [&[data-theme=light]]:hover:bg-yellow-50"
+                    title="Déplacer ou modifier cette réservation">
+                    <i class="fas fa-calendar-day mr-2"></i> Report de cours (Modifier)
                 </a>
                 <form method="POST" action="{{ url_for('reservations.annuler', id=reservation.id_reservation) }}"
                     class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -146,17 +146,24 @@
                 {% endif %}
             </nav>
         </aside>
+        
+        <!-- Sidebar Overlay (Mobile) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity duration-300 opacity-0 backdrop-blur-sm" onclick="toggleSidebar()"></div>
 
         <!-- Contenu Principal -->
         <main class="main-content">
             {% set flashed_messages = get_flashed_messages(with_categories=true) %}
             <!-- Header Bleu Hestim -->
             <header class="hestim-header flex items-center justify-between relative overflow-visible z-50">
-                <div class="flex items-center gap-4 relative z-10">
+                <div class="flex items-center gap-2 md:gap-4 relative z-10">
+                    <!-- Hamburger Menu Button (Mobile Only) -->
+                    <button id="mobile-menu-btn" class="md:hidden text-[#002855] text-2xl mr-1 p-2 rounded-lg hover:bg-black/5 transition-colors focus:outline-none" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <img src="{{ url_for('static', filename='logo svg hestim.svg') }}" alt="Logo"
-                        class="h-12 object-contain drop-shadow-sm">
+                        class="h-10 md:h-12 object-contain drop-shadow-sm hidden sm:block">
                     <div>
-                        <div class="header-logo-text leading-none text-[#002855] font-extrabold tracking-tight">HESTIM SCHEDULE</div>
+                        <div class="header-logo-text leading-none text-[#002855] font-extrabold tracking-tight text-[1.1rem] md:text-[1.8rem]">HESTIM SCHEDULE</div>
                     </div>
                 </div>
 
@@ -292,6 +299,27 @@
                             closeNotifications(dropdown, bell);
                         }
                     });
+                    });
+                    
+                    // Sidebar mobile toggle
+                    function toggleSidebar() {
+                        const sidebar = document.querySelector('.sidebar');
+                        const overlay = document.getElementById('sidebar-overlay');
+                        
+                        if (sidebar.classList.contains('open')) {
+                            sidebar.classList.remove('open');
+                            overlay.classList.remove('opacity-100');
+                            overlay.classList.add('opacity-0');
+                            setTimeout(() => overlay.classList.add('hidden'), 300);
+                        } else {
+                            sidebar.classList.add('open');
+                            overlay.classList.remove('hidden');
+                            setTimeout(() => {
+                                overlay.classList.remove('opacity-0');
+                                overlay.classList.add('opacity-100');
+                            }, 10);
+                        }
+                    }
                 </script>
                 <!-- Background decoration overlay if needed -->
                 <!-- <div class="absolute right-0 top-0 h-full w-1/3 opacity-10 bg-gradient-to-bl from-blue-400 to-indigo-500 blur-3xl pointer-events-none rounded-full translate-x-1/4 -translate-y-1/2"></div> -->
