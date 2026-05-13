@@ -1,0 +1,1023 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Statistiques Détaillées - Hestim Schedule{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Google Fonts ── */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  .stats-page { font-family: 'Inter', sans-serif; }
+
+  /* ── Page Header ── */
+  .stats-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 40px rgba(15,23,42,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .stats-header::before {
+    content: '';
+    position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .stats-header h1 { color: #fff; font-size: 1.75rem; font-weight: 800; margin: 0; }
+  .stats-header p { color: #94a3b8; margin: 0.25rem 0 0 0; font-size: 0.9rem; }
+  .btn-back {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+    position: relative; z-index: 1;
+  }
+  .btn-back:hover { background: rgba(255,255,255,0.2); color: #fff; transform: translateX(-3px); }
+
+  /* ── Section Title ── */
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, currentColor, transparent);
+    opacity: 0.25;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION 1 – Cartes KPI sommaires (4 cards)
+  ═══════════════════════════════════════════════════════ */
+  .kpi-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 1100px) { .kpi-summary-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 600px)  { .kpi-summary-grid { grid-template-columns: 1fr; } }
+
+  .kpi-summary-card {
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .kpi-summary-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.18); }
+  .kpi-summary-card .blob {
+    position: absolute; top: -30px; right: -30px;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    opacity: 0.18;
+    transition: transform 0.4s ease;
+  }
+  .kpi-summary-card:hover .blob { transform: scale(1.3); }
+
+  /* Card 1 – Cours Assignés : Indigo-Blue */
+  .kpi-card-1 { background: linear-gradient(145deg, #4f46e5, #3730a3); color: #fff; }
+  .kpi-card-1 .blob { background: #818cf8; }
+  /* Card 2 – Heures/Semaine : Violet-Pink */
+  .kpi-card-2 { background: linear-gradient(145deg, #7c3aed, #a21caf); color: #fff; }
+  .kpi-card-2 .blob { background: #e879f9; }
+  /* Card 3 – Taux Occupation : Emerald-Teal */
+  .kpi-card-3 { background: linear-gradient(145deg, #059669, #0d9488); color: #fff; }
+  .kpi-card-3 .blob { background: #6ee7b7; }
+  /* Card 4 – Étudiants Touchés : Orange-Amber */
+  .kpi-card-4 { background: linear-gradient(145deg, #f59e0b, #ea580c); color: #fff; }
+  .kpi-card-4 .blob { background: #fcd34d; }
+
+  .kpi-summary-card .kpi-label {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    opacity: 0.8; margin-bottom: 0.4rem;
+  }
+  .kpi-summary-card .kpi-value {
+    font-size: 2.4rem; font-weight: 800; line-height: 1;
+  }
+  .kpi-summary-card .kpi-sub {
+    font-size: 0.78rem; opacity: 0.75; margin-top: 0.4rem;
+  }
+  .kpi-summary-card .kpi-icon {
+    position: relative; z-index: 1;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1rem;
+    backdrop-filter: blur(6px);
+  }
+  .kpi-progress {
+    margin-top: 1rem;
+    height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .kpi-progress-bar {
+    height: 100%;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.75);
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION 2 – KPIs Analytiques Charts (4 charts)
+  ═══════════════════════════════════════════════════════ */
+  .kpi-charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 900px) { .kpi-charts-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    border-radius: 18px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    transition: box-shadow 0.3s ease;
+  }
+  .chart-card:hover { box-shadow: 0 10px 35px rgba(0,0,0,0.12); }
+
+  /* KPI 4 – Évolution Charge : fond nuit */
+  .chart-kpi4 {
+    background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+    border: 1px solid #334155;
+  }
+  .chart-kpi4 .chart-title { color: #e2e8f0; }
+  .chart-kpi4 .chart-subtitle { color: #64748b; }
+
+  /* KPI 2 – Répartition Type : fond lavande clair */
+  .chart-kpi2 {
+    background: linear-gradient(160deg, #f5f3ff 0%, #ede9fe 100%);
+    border: 1px solid #ddd6fe;
+  }
+  .chart-kpi2 .chart-title { color: #4c1d95; }
+  .chart-kpi2 .chart-subtitle { color: #7c3aed; }
+
+  /* KPI 1 – Occupation salle : fond vert menthe */
+  .chart-kpi1 {
+    background: linear-gradient(160deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #a7f3d0;
+  }
+  .chart-kpi1 .chart-title { color: #065f46; }
+  .chart-kpi1 .chart-subtitle { color: #10b981; }
+
+  /* KPI 3 – Top Réservations Prof : fond ambre clair */
+  .chart-kpi3 {
+    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1px solid #fde68a;
+  }
+  .chart-kpi3 .chart-title { color: #78350f; }
+  .chart-kpi3 .chart-subtitle { color: #d97706; }
+
+  .chart-card .chart-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 0.75rem;
+  }
+  .badge-blue { background: rgba(99,102,241,0.15); color: #6366f1; }
+  .badge-violet { background: rgba(124,58,237,0.15); color: #7c3aed; }
+  .badge-green { background: rgba(5,150,105,0.15); color: #059669; }
+  .badge-amber { background: rgba(245,158,11,0.15); color: #d97706; }
+
+  .chart-title { font-size: 1rem; font-weight: 700; margin: 0.2rem 0 0.1rem; }
+  .chart-subtitle { font-size: 0.78rem; margin-bottom: 1.25rem; }
+  .chart-canvas-wrap { position: relative; width: 100%; height: 300px; }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION 3 – Heatmap d'occupation
+  ═══════════════════════════════════════════════════════ */
+  .heatmap-card {
+    background: linear-gradient(160deg, #0c1a2e 0%, #0f2744 100%);
+    border: 1px solid #1e3a5f;
+    border-radius: 18px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+  }
+  .heatmap-card .chart-title { color: #e2e8f0; }
+  .heatmap-card .chart-subtitle { color: #60a5fa; }
+
+  .heatmap-wrapper { overflow-x: auto; padding-bottom: 0.5rem; }
+  .heatmap-table {
+    border-collapse: separate;
+    border-spacing: 4px;
+    width: 100%;
+    min-width: 640px;
+  }
+  .heatmap-table th {
+    font-size: 0.68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #64748b; padding: 4px 8px; text-align: center;
+  }
+  .heatmap-table .row-label {
+    font-size: 0.7rem; font-weight: 600; color: #94a3b8;
+    text-align: right; padding-right: 10px; white-space: nowrap;
+  }
+  .heatmap-cell {
+    width: 48px; height: 38px;
+    border-radius: 8px;
+    text-align: center; vertical-align: middle;
+    font-size: 0.7rem; font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    cursor: default;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    position: relative;
+  }
+  .heatmap-cell:hover { transform: scale(1.15); filter: brightness(1.2); z-index: 2; }
+
+  /* Dégradé intensité : bleu nuit → bleu ocean → cyan → teal */
+  .heat-0  { background: #1e3a5f; color: #475569; }
+  .heat-1  { background: #1a4a7a; }
+  .heat-2  { background: #155e9e; }
+  .heat-3  { background: #1170c0; }
+  .heat-4  { background: #0e86d4; }
+  .heat-5  { background: #0d9ee8; }
+  .heat-6  { background: #06b6d4; }
+  .heat-7  { background: #14b8a6; }
+  .heat-8  { background: #22c55e; }
+  .heat-9  { background: #f59e0b; }
+  .heat-10 { background: #ef4444; }
+
+  .heatmap-legend {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 1rem; justify-content: flex-end;
+  }
+  .heatmap-legend span { font-size: 0.68rem; color: #64748b; }
+  .legend-scale {
+    display: flex; gap: 3px;
+  }
+  .legend-box { width: 22px; height: 14px; border-radius: 4px; }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION 4 – Matrice de Corrélation (Type Salle x Jour)
+  ═══════════════════════════════════════════════════════ */
+  .correlation-card {
+    background: linear-gradient(160deg, #fff7ed 0%, #fef3c7 100%);
+    border: 1px solid #fed7aa;
+    border-radius: 18px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+  }
+  .correlation-card .chart-title { color: #7c2d12; }
+  .correlation-card .chart-subtitle { color: #ea580c; }
+
+  .corr-table-wrap { overflow-x: auto; }
+  .corr-table {
+    border-collapse: separate;
+    border-spacing: 5px;
+    width: 100%;
+    min-width: 500px;
+  }
+  .corr-table th {
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #92400e; padding: 6px 10px; text-align: center;
+  }
+  .corr-table .row-label {
+    font-size: 0.7rem; font-weight: 700; color: #78350f;
+    background: rgba(254,215,170,0.5);
+    border-radius: 8px; padding: 6px 12px; white-space: nowrap;
+    text-align: right;
+  }
+  .corr-cell {
+    height: 44px; min-width: 60px;
+    border-radius: 10px;
+    text-align: center; vertical-align: middle;
+    font-size: 0.78rem; font-weight: 700;
+    cursor: default;
+    transition: transform 0.2s ease;
+    position: relative;
+  }
+  .corr-cell:hover { transform: scale(1.1); z-index: 2; }
+
+  /* Palette chaude pour la corrélation : crème → orange → rouge */
+  .corr-0  { background: #fef9f0; color: #d1a05a; }
+  .corr-1  { background: #fde8c8; color: #92400e; }
+  .corr-2  { background: #fcd3a0; color: #7c2d12; }
+  .corr-3  { background: #fbb976; color: #7c2d12; }
+  .corr-4  { background: #f9a24e; color: #fff; }
+  .corr-5  { background: #f78a28; color: #fff; }
+  .corr-6  { background: #ea6f0b; color: #fff; }
+  .corr-7  { background: #d85f09; color: #fff; }
+  .corr-8  { background: #c44f07; color: #fff; }
+  .corr-9  { background: #b04005; color: #fff; }
+  .corr-10 { background: #923203; color: #fff; }
+
+  /* ═══════════════════════════════════════════════════════
+     SECTION 5 – Layout charts + Liste cours
+  ═══════════════════════════════════════════════════════ */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 900px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+  .hours-chart-card {
+    background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .hours-chart-card .chart-title { color: #1e293b; }
+  .hours-chart-card .chart-subtitle { color: #64748b; }
+
+  .cours-list-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column;
+  }
+  .cours-list-header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #fff;
+    font-weight: 700; font-size: 0.88rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .cours-list-body { overflow-y: auto; max-height: 340px; flex: 1; }
+  .cours-list-body table { width: 100%; border-collapse: collapse; }
+  .cours-list-body thead th {
+    background: #f8fafc;
+    padding: 8px 14px;
+    font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #94a3b8; font-weight: 700; border-bottom: 1px solid #e2e8f0;
+    position: sticky; top: 0;
+  }
+  .cours-list-body tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+  .cours-list-body tbody tr:hover { background: #f8fafc; }
+  .cours-list-body tbody td { padding: 10px 14px; }
+
+  /* Tooltip custom */
+  .has-tooltip { position: relative; }
+  .has-tooltip[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15,23,42,0.92);
+    color: #e2e8f0;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 4px 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 50;
+  }
+</style>
+
+<div class="stats-page animate-fade-in-up">
+
+  <!-- ── Header ── -->
+  <div class="stats-header">
+    <div style="position:relative;z-index:1">
+      <h1>📊 Statistiques Avancées</h1>
+      <p>Analyse complète de l'occupation, des charges et des répartitions.</p>
+    </div>
+    <div style="display:flex; gap:1rem; position:relative; z-index:1;">
+      <a href="{{ url_for('dashboard.export_stats') }}" class="btn-back" style="background: rgba(16, 185, 129, 0.4); border-color: rgba(52, 211, 153, 0.5);">
+        <i class="fas fa-file-excel"></i> Télécharger le Rapport
+      </a>
+      <a href="{{ url_for('dashboard.home') }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 1 – Cartes KPI Sommaires
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="color:#6366f1">
+    <i class="fas fa-tachometer-alt"></i> Indicateurs Clés
+  </div>
+
+  <div class="kpi-summary-grid">
+    <!-- Cours Assignés -->
+    <div class="kpi-summary-card kpi-card-1">
+      <div class="blob"></div>
+      <div class="kpi-icon"><i class="fas fa-book-open"></i></div>
+      <div class="kpi-label">Cours Assignés</div>
+      <div class="kpi-value">{{ stats.total_cours_assignes }}</div>
+      <div class="kpi-sub">Cours distincts avec réservations</div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" style="width:75%"></div></div>
+    </div>
+
+    <!-- Heures / Semaine -->
+    <div class="kpi-summary-card kpi-card-2">
+      <div class="blob"></div>
+      <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+      <div class="kpi-label">Heures / Semaine</div>
+      <div class="kpi-value">{{ stats.total_heures_semaine }}<small style="font-size:1rem">h</small></div>
+      <div class="kpi-sub">Volume horaire cette semaine</div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" style="width:60%"></div></div>
+    </div>
+
+    <!-- Taux d'Occupation -->
+    <div class="kpi-summary-card kpi-card-3">
+      <div class="blob"></div>
+      <div class="kpi-icon"><i class="fas fa-percentage"></i></div>
+      <div class="kpi-label">Taux d'Occupation</div>
+      <div class="kpi-value">{{ stats.taux_occupation }}<small style="font-size:1rem">%</small></div>
+      <div class="kpi-sub">Des créneaux occupés</div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" style="width:{{ stats.taux_occupation }}%"></div></div>
+    </div>
+
+    <!-- Étudiants Touchés -->
+    <div class="kpi-summary-card kpi-card-4">
+      <div class="blob"></div>
+      <div class="kpi-icon"><i class="fas fa-users"></i></div>
+      <div class="kpi-label">Étudiants Touchés</div>
+      <div class="kpi-value">{{ stats.etudiants_touches }}</div>
+      <div class="kpi-sub">Apprenants actifs cette semaine</div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" style="width:55%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="color:#ef4444; margin-top:2rem;">
+    <i class="fas fa-brain"></i> Indicateurs Avancés
+  </div>
+  <div class="kpi-summary-grid" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="kpi-summary-card" style="background: white; border: 1px solid #e2e8f0; padding:1.2rem;">
+          <div class="kpi-label" style="color: #475569">Moy. Heures / Prof</div>
+          <div class="kpi-value" style="color: #1e293b; font-size:1.8rem;">{{ stats.moy_heures_prof }}<small>h</small></div>
+      </div>
+      <div class="kpi-summary-card" style="background: white; border: 1px solid #e2e8f0; padding:1.2rem;">
+          <div class="kpi-label" style="color: #475569">Moy. Heures / Étudiant</div>
+          <div class="kpi-value" style="color: #1e293b; font-size:1.8rem;">{{ stats.moy_heures_etu }}<small>h</small></div>
+      </div>
+      <div class="kpi-summary-card" style="background: white; border: 1px solid #e2e8f0; padding:1.2rem;">
+          <div class="kpi-label" style="color: #475569">Taux d'Absence (Sim)</div>
+          <div class="kpi-value" style="color: #1e293b; font-size:1.8rem;">{{ stats.taux_absence }}<small>%</small></div>
+      </div>
+      <div class="kpi-summary-card" style="background: white; border: 1px solid #e2e8f0; padding:1.2rem;">
+          <div class="kpi-label" style="color: #475569">Taux de Conflit</div>
+          <div class="kpi-value" style="color: #ef4444; font-size:1.8rem;">{{ stats.taux_conflits }}<small>%</small></div>
+      </div>
+      <div class="kpi-summary-card" style="background: white; border: 1px solid #e2e8f0; padding:1.2rem;">
+          <div class="kpi-label" style="color: #475569">Modifications</div>
+          <div class="kpi-value" style="color: #f59e0b; font-size:1.8rem;">{{ stats.taux_modifs }}<small>%</small></div>
+      </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 2 – KPIs Analytiques (Graphes)
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="color:#10b981">
+    <i class="fas fa-chart-bar"></i> Analyses Graphiques
+  </div>
+
+  <!-- Rangée 1: Évolution (large) + Répartition Type (small) -->
+  <div class="kpi-charts-grid" style="margin-bottom:1.25rem">
+    <!-- KPI 4: Évolution Charge -->
+    <div class="chart-card chart-kpi4">
+      <span class="chart-badge badge-blue"><i class="fas fa-chart-line"></i> Évolution</span>
+      <div class="chart-title">Charge Quotidienne des Réservations</div>
+      <div class="chart-subtitle">Nombre de réservations par jour · Toute la période</div>
+      <div class="chart-canvas-wrap"><canvas id="kpi4Chart"></canvas></div>
+    </div>
+
+    <!-- KPI 2: Répartition par Type de Salle -->
+    <div class="chart-card chart-kpi2">
+      <span class="chart-badge badge-violet"><i class="fas fa-door-open"></i> Répartition</span>
+      <div class="chart-title">Par Type de Salle</div>
+      <div class="chart-subtitle">Distribution des réservations</div>
+      <div class="chart-canvas-wrap"><canvas id="kpi2Chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Rangée 2: Occupation Salle (large) + Top Profs (small) -->
+  <div class="kpi-charts-grid">
+    <!-- KPI 1: Taux d'Occupation par Salle -->
+    <div class="chart-card chart-kpi1">
+      <span class="chart-badge badge-green"><i class="fas fa-building"></i> Occupation</span>
+      <div class="chart-title">Taux d'Occupation par Salle (%)</div>
+      <div class="chart-subtitle">Semaine en cours · classé par intensité</div>
+      <div class="chart-canvas-wrap"><canvas id="kpi1Chart"></canvas></div>
+    </div>
+
+    <!-- KPI 3: Top Réservations Professeurs -->
+    <div class="chart-card chart-kpi3">
+      <span class="chart-badge badge-amber"><i class="fas fa-chalkboard-teacher"></i> Top Profs</span>
+      <div class="chart-title">Top Réservations</div>
+      <div class="chart-subtitle">Enseignants les plus actifs</div>
+      <div class="chart-canvas-wrap" style="height: 600px;"><canvas id="kpi3Chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 3 – Heatmap d'Occupation
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="color:#38bdf8; margin-top:0.5rem">
+    <i class="fas fa-th"></i> Heatmap d'Occupation
+  </div>
+
+  <div class="heatmap-card">
+    <span class="chart-badge" style="background:rgba(56,189,248,0.15);color:#38bdf8">
+      <i class="fas fa-fire"></i> Intensité
+    </span>
+    <div class="chart-title" style="color:#e2e8f0">Occupation des Salles : Jours × Créneaux Horaires</div>
+    <div class="chart-subtitle" style="color:#60a5fa">Nombre total de salles occupées par tranche horaire · Toute la période</div>
+
+    <div class="heatmap-wrapper">
+      <table class="heatmap-table" id="heatmapTable">
+        <thead>
+          <tr>
+            <th style="width:70px"></th>
+            {% for creneau in stats.heatmap_creneaux %}
+            <th>{{ creneau }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for jour_idx in range(stats.heatmap_jours|length) %}
+          <tr>
+            <td class="row-label">{{ stats.heatmap_jours[jour_idx] }}</td>
+            {% for cr_idx in range(stats.heatmap_creneaux|length) %}
+            {% set val = stats.heatmap_grid[jour_idx][cr_idx] %}
+            <td class="heatmap-cell has-tooltip" data-tip="{{ val }} salle(s)" data-val="{{ val }}">{{ val if val > 0 else '' }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="heatmap-legend">
+      <span>Faible</span>
+      <div class="legend-scale">
+        <div class="legend-box heat-0"></div>
+        <div class="legend-box heat-2"></div>
+        <div class="legend-box heat-4"></div>
+        <div class="legend-box heat-6"></div>
+        <div class="legend-box heat-8"></div>
+        <div class="legend-box heat-10"></div>
+      </div>
+      <span>Élevé</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 4 – Matrice de Corrélation
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="color:#f97316">
+    <i class="fas fa-th-large"></i> Matrice de Corrélation
+  </div>
+
+  <div class="correlation-card">
+    <span class="chart-badge" style="background:rgba(249,115,22,0.15);color:#ea580c">
+      <i class="fas fa-project-diagram"></i> Corrélation
+    </span>
+    <div class="chart-title">Type de Salle × Jour de la Semaine</div>
+    <div class="chart-subtitle">Nombre de réservations par type de salle pour chaque jour · Toute la période</div>
+
+    {% if stats.correlation_types %}
+    <div class="corr-table-wrap">
+      <table class="corr-table" id="corrTable">
+        <thead>
+          <tr>
+            <th style="text-align:right;color:#78350f">Type / Jour</th>
+            {% for jour in stats.correlation_jours %}
+            <th>{{ jour[:3] }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for type_idx in range(stats.correlation_types|length) %}
+          <tr>
+            <td class="row-label">{{ stats.correlation_types[type_idx] }}</td>
+            {% for jour_idx in range(stats.correlation_jours|length) %}
+            {% set val = stats.correlation_matrix[type_idx][jour_idx] %}
+            <td class="corr-cell has-tooltip" data-tip="{{ val }} réservation(s)" data-val="{{ val }}">{{ val }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="heatmap-legend" style="margin-top:1rem">
+      <span style="color:#92400e">Faible</span>
+      <div class="legend-scale">
+        <div class="legend-box corr-0"></div>
+        <div class="legend-box corr-2"></div>
+        <div class="legend-box corr-4"></div>
+        <div class="legend-box corr-6"></div>
+        <div class="legend-box corr-8"></div>
+        <div class="legend-box corr-10"></div>
+      </div>
+      <span style="color:#92400e">Élevé</span>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:3rem 0;color:#d97706;font-size:0.9rem">
+      <i class="fas fa-info-circle" style="font-size:2rem;margin-bottom:0.5rem;display:block;opacity:0.5"></i>
+      Aucune donnée disponible pour la matrice de corrélation.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 5 – Répartition horaire + Liste des cours
+  ══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="color:#8b5cf6">
+    <i class="fas fa-calendar-week"></i> Semaine en Cours
+  </div>
+
+  <div class="bottom-grid">
+    <!-- Répartition des heures par jour -->
+    <div class="hours-chart-card">
+      <span class="chart-badge" style="background:rgba(99,102,241,0.12);color:#6366f1">
+        <i class="fas fa-chart-bar"></i> Distribution
+      </span>
+      <div class="chart-title">Répartition des Heures par Jour</div>
+      <div class="chart-subtitle" style="color:#64748b">Semaine courante uniquement</div>
+      <div class="chart-canvas-wrap" style="height:260px"><canvas id="hoursChart"></canvas></div>
+    </div>
+
+    <!-- Liste des cours -->
+    <div class="cours-list-card">
+      <div class="cours-list-header">
+        <i class="fas fa-list-ul"></i> Liste des cours (Semaine)
+      </div>
+      <div class="cours-list-body">
+        {% if stats.liste_cours %}
+        <table>
+          <thead><tr><th>Cours</th><th>Horaire</th></tr></thead>
+          <tbody>
+            {% for cours in stats.liste_cours %}
+            <tr>
+              <td>
+                <div style="font-size:0.8rem;font-weight:700;color:#1e293b">{{ cours.code }}</div>
+                <div style="font-size:0.7rem;color:#64748b;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ cours.cours }}">{{ cours.cours }}</div>
+                <span style="font-size:0.65rem;color:#6366f1;font-weight:600">{{ cours.groupe }}</span>
+              </td>
+              <td>
+                <span style="display:block;font-size:0.72rem;font-weight:700;color:#334155">{{ cours.jour }}</span>
+                <span style="display:block;font-size:0.7rem;color:#64748b">{{ cours.horaire }}</span>
+                <span style="display:inline-block;margin-top:2px;padding:1px 7px;background:#f1f5f9;color:#475569;border-radius:6px;font-size:0.62rem;font-weight:600">{{ cours.salle }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div style="padding:2.5rem;text-align:center;color:#94a3b8;font-size:0.85rem">
+          <i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.4"></i>
+          Aucun cours cette semaine.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─────────────────────────────────────────────── -->
+<!--  Libraries                                      -->
+<!-- ─────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Données sécurisées -->
+<div id="stats-container" data-stats="{{ stats | default({}) | tojson | forceescape }}" style="display:none"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── Parse data ── */
+  let stats = {};
+  try { stats = JSON.parse(document.getElementById('stats-container').dataset.stats); }
+  catch(e) { console.error("Parsing error:", e); }
+
+  /* ── Shared chart defaults ── */
+  const fontFamily = "'Inter', sans-serif";
+  Chart.defaults.font.family = fontFamily;
+
+  /* ═══════════════════════════════════════════════
+     KPI 4 – Évolution Charge (Line gradient, dark)
+  ═══════════════════════════════════════════════ */
+  const ctx4 = document.getElementById('kpi4Chart').getContext('2d');
+  const grad4 = ctx4.createLinearGradient(0, 0, 0, 300);
+  grad4.addColorStop(0, 'rgba(56,189,248,0.45)');
+  grad4.addColorStop(1, 'rgba(56,189,248,0.02)');
+
+  const surchargeData = stats.surcharge_data || [];
+  const avgVal = stats.surcharge_moyenne || 0;
+  const avgLine = Array(surchargeData.length).fill(avgVal);
+
+  new Chart(ctx4, {
+    type: 'line',
+    data: {
+      labels: stats.surcharge_labels || [],
+      datasets: [
+        {
+          label: 'Réservations',
+          data: surchargeData,
+          borderColor: '#38bdf8',
+          backgroundColor: grad4,
+          borderWidth: 2.5,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#38bdf8'
+        },
+        {
+          label: 'Moyenne',
+          data: avgLine,
+          borderColor: 'rgba(248,113,113,0.8)',
+          borderWidth: 1.5,
+          borderDash: [6,4],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 14 }
+        },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          borderColor: '#334155', borderWidth: 1,
+          padding: 10, cornerRadius: 10,
+          titleColor: '#38bdf8', bodyColor: '#e2e8f0'
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#475569', maxRotation: 45, minRotation: 45, font: { size: 10 } },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        },
+        y: {
+          beginAtZero: false,
+          ticks: { color: '#475569', font: { size: 11 } },
+          grid: { color: 'rgba(51,65,85,0.5)' }
+        }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════
+     KPI 2 – Répartition Type Salle (Doughnut vibrant)
+  ═══════════════════════════════════════════════ */
+  const vibrantColors = [
+    '#6366f1','#8b5cf6','#a855f7','#ec4899','#f43f5e',
+    '#14b8a6','#06b6d4','#3b82f6','#f59e0b','#10b981'
+  ];
+  new Chart(document.getElementById('kpi2Chart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: stats.repartition_type_salle_labels || [],
+      datasets: [{
+        data: stats.repartition_type_salle_data || [],
+        backgroundColor: vibrantColors,
+        borderWidth: 3,
+        borderColor: '#f5f3ff',
+        hoverBorderColor: '#fff',
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#4c1d95', font: { size: 10, weight: '600' }, padding: 12, boxWidth: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#4c1d95',
+          titleColor: '#ede9fe', bodyColor: '#ddd6fe',
+          borderColor: '#7c3aed', borderWidth: 1,
+          padding: 10, cornerRadius: 10
+        }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════
+     KPI 1 – Occupation par Salle (Bar gradient green)
+  ═══════════════════════════════════════════════ */
+  const ctx1 = document.getElementById('kpi1Chart').getContext('2d');
+  const labels1 = stats.taux_occupation_salle_labels || [];
+  const barColors1 = labels1.map((_, i) => {
+    const t = i / Math.max(labels1.length - 1, 1);
+    const r = Math.round(5 + t * (16-5));
+    const g = Math.round(150 - t * (150-100));
+    const b = Math.round(105 - t * 50);
+    return `rgba(${r*6},${g+40},${b+30},0.85)`;
+  });
+
+  new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: labels1,
+      datasets: [{
+        label: "Taux d'occupation (%)",
+        data: stats.taux_occupation_salle_data || [],
+        backgroundColor: labels1.map((_, i) => {
+          const pct = i / Math.max(labels1.length - 1, 1);
+          // vert foncé → vert clair → teal
+          return `hsl(${160 - pct*30}, ${75-pct*10}%, ${38+pct*15}%)`;
+        }),
+        borderColor: 'transparent',
+        borderRadius: 8,
+        borderSkipped: false,
+        barThickness: 22
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#065f46',
+          titleColor: '#a7f3d0', bodyColor: '#d1fae5',
+          padding: 10, cornerRadius: 10,
+          callbacks: { label: ctx => ctx.raw.toFixed(1) + '%' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#065f46', maxRotation: 45, minRotation: 45, font: { size: 10 } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true, max: 100,
+          ticks: { color: '#059669', font: { size: 11 }, callback: v => v + '%' },
+          grid: { color: 'rgba(167,243,208,0.4)' }
+        }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════
+     KPI 3 – Top Professeurs (Horizontal Bar amber)
+  ═══════════════════════════════════════════════ */
+  const labels3 = stats.reservations_prof_labels || [];
+  const data3   = stats.reservations_prof_data   || [];
+  const maxVal3 = Math.max(...data3, 1);
+
+  new Chart(document.getElementById('kpi3Chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels3,
+      datasets: [{
+        label: 'Réservations',
+        data: data3,
+        backgroundColor: data3.map(v => {
+          const pct = v / maxVal3;
+          return `hsla(${38 - pct*20}, 95%, ${55 - pct*15}%, 0.88)`;
+        }),
+        borderColor: 'transparent',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#78350f',
+          titleColor: '#fef3c7', bodyColor: '#fde68a',
+          padding: 10, cornerRadius: 10
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: { color: '#d97706', font: { size: 10 } },
+          grid: { color: 'rgba(253,230,138,0.3)' }
+        },
+        y: {
+          ticks: { color: '#78350f', font: { size: 10 }, autoSkip: false, padding: 10 }
+        }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════
+     Heures par jour (Bar indigo-purple gradient)
+  ═══════════════════════════════════════════════ */
+  const ctx5 = document.getElementById('hoursChart').getContext('2d');
+  const grad5 = ctx5.createLinearGradient(0, 0, 0, 260);
+  grad5.addColorStop(0, 'rgba(99,102,241,0.9)');
+  grad5.addColorStop(1, 'rgba(139,92,246,0.5)');
+
+  new Chart(ctx5, {
+    type: 'bar',
+    data: {
+      labels: stats.graph_labels || [],
+      datasets: [{
+        label: 'Heures de cours',
+        data: stats.graph_data || [],
+        backgroundColor: grad5,
+        borderColor: 'rgba(99,102,241,1)',
+        borderWidth: 0,
+        borderRadius: 8,
+        borderSkipped: false,
+        barThickness: 34
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#312e81',
+          titleColor: '#c7d2fe', bodyColor: '#e0e7ff',
+          padding: 10, cornerRadius: 10,
+          callbacks: { label: ctx => ctx.raw + 'h' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6366f1', font: { size: 11, weight: '600' } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#818cf8', font: { size: 11 }, callback: v => v + 'h' },
+          grid: { color: 'rgba(199,210,254,0.25)' }
+        }
+      }
+    }
+  });
+
+  /* ═══════════════════════════════════════════════
+     Heatmap : colorisation dynamique des cellules
+  ═══════════════════════════════════════════════ */
+  const heatCells = document.querySelectorAll('.heatmap-cell');
+  if (heatCells.length > 0) {
+    const allVals = Array.from(heatCells).map(c => parseInt(c.dataset.val) || 0);
+    const maxHeat = Math.max(...allVals, 1);
+    heatCells.forEach(cell => {
+      const v = parseInt(cell.dataset.val) || 0;
+      const level = Math.round((v / maxHeat) * 10);
+      cell.classList.add('heat-' + level);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════
+     Matrice Corrélation : colorisation dynamique
+  ═══════════════════════════════════════════════ */
+  const corrCells = document.querySelectorAll('.corr-cell');
+  if (corrCells.length > 0) {
+    const allCorr = Array.from(corrCells).map(c => parseInt(c.dataset.val) || 0);
+    const maxCorr = Math.max(...allCorr, 1);
+    corrCells.forEach(cell => {
+      const v = parseInt(cell.dataset.val) || 0;
+      const level = Math.round((v / maxCorr) * 10);
+      cell.classList.add('corr-' + level);
+    });
+  }
+
+});
+</script>
+{% endblock %}
+

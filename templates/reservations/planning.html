@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+
+{% block title %}Planning des Réservations - Hestim Schedule{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-6 py-10">
+    <div class="mb-8 animate-fade-in-up">
+        <h1 class="text-3xl font-display font-bold mb-2 text-white text-[#0f172a]">📆 Planning des
+            réservations</h1>
+        <p class="text-gray-400 text-[#64748b]">Vue synthétique des réservations par jour pour la
+            semaine sélectionnée.</p>
+    </div>
+
+    <div class="glass-card mb-6 p-6 animate-fade-in-up">
+        <form method="GET" action="{{ url_for('reservations.planning') }}"
+            class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="semaine"
+                    class="block text-sm font-semibold mb-2 text-white text-[#0f172a]">Semaine à
+                    partir du</label>
+                <input type="date"
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white bg-white border-[#cbd5e1] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-[#3b82f6]"
+                    id="semaine" name="semaine" value="{{ semaine_str }}">
+            </div>
+    </div>
+    <div class="flex items-end gap-2 mt-4">
+        <button type="submit" class="btn-gradient px-4 py-2 flex-1">
+            🔄 Actualiser
+        </button>
+        <a href="#" onclick="exportPDF()" class="btn-gradient px-4 py-2 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white border-0" title="Exporter en PDF" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);">
+            <i class="fa-solid fa-file-pdf mr-2"></i> PDF
+        </a>
+        <a href="{{ url_for('reservations.export_planning', semaine=semaine_str) }}"
+            class="btn-outline px-4 py-2 flex items-center justify-center" title="Exporter en CSV">
+            📥 CSV
+        </a>
+    </div>
+    </form>
+</div>
+
+<!-- Script Temps Réel -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateRealTimeStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentTime = currentHour * 60 + currentMinute;
+
+            // Obtenir le jour actuel (Format string 'YYYY-MM-DD')
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            // Clean up old highlights
+            document.querySelectorAll('.animate-live-cell').forEach(el => {
+                el.classList.remove('bg-red-50', 'ring-2', 'ring-red-500', 'animate-live-cell', 'dark:bg-red-900/20');
+                const badge = el.querySelector('.live-badge');
+                if (badge) badge.remove();
+            });
+
+            // Find cells with time data
+            const cells = document.querySelectorAll('td[data-start]');
+
+            cells.forEach(cell => {
+                // Determine date from parent row
+                const row = cell.closest('tr');
+                if (!row) return;
+                const rowDate = row.getAttribute('data-date');
+
+                if (rowDate === todayStr) {
+                    const startStr = cell.getAttribute('data-start');
+                    const endStr = cell.getAttribute('data-end');
+
+                    if (!startStr || !endStr) return;
+
+                    const [startH, startM] = startStr.split(':').map(Number);
+                    const [endH, endM] = endStr.split(':').map(Number);
+
+                    const startTime = startH * 60 + startM;
+                    const endTime = endH * 60 + endM;
+
+                    if (currentTime >= startTime && currentTime < endTime) {
+                        cell.classList.add('bg-red-50', 'ring-2', 'ring-red-500', 'animate-live-cell', 'dark:bg-red-900/20');
+                        // Add badge
+                        if (!cell.querySelector('.live-badge')) {
+                            const badge = document.createElement('div');
+                            badge.className = 'live-badge mt-1 text-center';
+                            badge.innerHTML = '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 animate-pulse">🔴 LIVE</span>';
+                            cell.appendChild(badge);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Mettre à jour toutes les minutes
+        updateRealTimeStatus();
+        setInterval(updateRealTimeStatus, 60000);
+    });
+</script>
+
+
+
+<div class="glass-card p-6 animate-fade-in-up" id="planning-grid-container">
+    {% if planning_grid and planning_grid|length > 0 %}
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-blue-200">
+            <thead>
+                <tr
+                    class="bg-blue-600/20 text-blue-900 dark:bg-blue-900/40 dark:text-blue-100">
+                    <th class="border border-blue-300/50 p-2 text-center w-32 font-bold">Semaine</th>
+                    <th class="border border-blue-300/50 p-2 text-center w-48 font-bold">Jours</th>
+                    <th class="border border-blue-300/50 p-2 text-center w-24 font-bold">M/E/S</th>
+                    <th colspan="2"
+                        class="border border-blue-300/50 p-2 text-center bg-blue-500/10 dark:bg-blue-800/20 font-bold uppercase text-sm">
+                        Matin</th>
+                    <th colspan="2"
+                        class="border border-blue-300/50 p-2 text-center bg-indigo-500/10 dark:bg-indigo-800/20 font-bold uppercase text-sm">
+                        Après-midi</th>
+                </tr>
+                <tr
+                    class="bg-blue-600/10 text-blue-800 text-xs text-center dark:bg-blue-900/20 dark:text-blue-200">
+                    <td colspan="3" class="border border-blue-300/30"></td>
+                    <td class="border border-blue-300/30 py-1 font-semibold">09h00 - 10h45</td>
+                    <td class="border border-blue-300/30 py-1 font-semibold">11h00 - 12h30</td>
+                    <td class="border border-blue-300/30 py-1 font-semibold">13h30 - 15h15</td>
+                    <td class="border border-blue-300/30 py-1 font-semibold">15h30 - 17h00</td>
+                </tr>
+            </thead>
+            <tbody class="text-sm">
+                {% for day in planning_grid %}
+                <!-- Ligne Matière -->
+                <tr data-date="{{ day.date_obj.isoformat() }}" class="hover:bg-gray-50/5 transition-colors">
+                    <td rowspan="3"
+                        class="border border-gray-300/50 p-4 font-bold text-center bg-blue-50/50 dark:bg-blue-900/10 text-gray-700 dark:text-gray-300">
+                        {% if loop.first %}
+                        <div class="text-xs uppercase tracking-wider text-gray-500 mb-1">Du {{
+                            planning_grid[0].date_obj.day }} au {{ planning_grid[-1].date_obj.day }}</div>
+                        <div class="text-lg font-display text-blue-600 dark:text-blue-400">{{
+                            planning_grid[0].date_str.split(' ')[-2] }}</div>
+                        <div class="text-xs text-gray-400">{{ planning_grid[0].date_obj.year }}</div>
+                        {% endif %}
+                    </td>
+                    <td rowspan="3"
+                        class="border border-gray-300/50 p-2 font-semibold capitalize bg-gray-50/30 dark:bg-gray-800/30 text-gray-800 dark:text-gray-200">
+                        {{ day.date_str }}
+                    </td>
+                    <td
+                        class="border border-gray-300/50 p-2 text-center font-bold bg-gray-100/50 dark:bg-gray-700/30 text-xs uppercase tracking-wider text-gray-500">
+                        Matière</td>
+
+                    {% for slot_name in ['matin1', 'matin2', 'pm1', 'pm2'] %}
+                    {% set slot = day.slots[slot_name] %}
+                    <td class="border border-gray-300/50 p-2 text-center align-middle {% if slot %}bg-white dark:bg-gray-800{% else %}bg-gray-50/50 dark:bg-gray-900/50{% endif %}"
+                        {% if slot %} data-start="{{ slot.iso_start }}" data-end="{{ slot.iso_end }}" {% endif %}>
+                        {% if slot %}
+                        <div class="font-bold text-blue-600 dark:text-blue-400 text-sm leading-tight">
+                            {{ slot.matiere }}
+                        </div>
+                        <div class="text-[10px] text-blue-400/80 mt-1 font-mono">({{ slot.heure }})</div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+
+                <!-- Ligne Enseignant -->
+                <tr data-date="{{ day.date_obj.isoformat() }}" class="hover:bg-gray-50/5 transition-colors">
+                    <td
+                        class="border border-gray-300/50 p-2 text-center font-bold bg-gray-100/50 dark:bg-gray-700/30 text-xs uppercase tracking-wider text-gray-500">
+                        Enseignant</td>
+                    {% for slot_name in ['matin1', 'matin2', 'pm1', 'pm2'] %}
+                    {% set slot = day.slots[slot_name] %}
+                    <td class="border border-gray-300/50 p-2 text-center align-middle {% if slot %}bg-white dark:bg-gray-800{% else %}bg-gray-50/50 dark:bg-gray-900/50{% endif %}"
+                        {% if slot %} data-start="{{ slot.iso_start }}" data-end="{{ slot.iso_end }}" {% endif %}>
+                        {% if slot %}
+                        <div
+                            class="text-rose-500 text-rose-600 font-semibold text-xs user-select-all">
+                            {{ slot.enseignant }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+
+                <!-- Ligne Salle -->
+                <tr data-date="{{ day.date_obj.isoformat() }}"
+                    class="hover:bg-gray-50/5 transition-colors border-b-2 border-gray-300">
+                    <td
+                        class="border border-gray-300/50 p-2 text-center font-bold bg-gray-100/50 dark:bg-gray-700/30 text-xs uppercase tracking-wider text-gray-500">
+                        Salle</td>
+                    {% for slot_name in ['matin1', 'matin2', 'pm1', 'pm2'] %}
+                    {% set slot = day.slots[slot_name] %}
+                    <td class="border border-gray-300/50 p-2 text-center align-middle {% if slot %}bg-white dark:bg-gray-800{% else %}bg-gray-50/50 dark:bg-gray-900/50{% endif %}"
+                        {% if slot %} data-start="{{ slot.iso_start }}" data-end="{{ slot.iso_end }}" {% endif %}>
+                        {% if slot %}
+                        <div class="text-emerald-500 text-emerald-600 font-bold text-xs">
+                            {{ slot.salle }}
+                        </div>
+                        <div class="text-[10px] text-gray-400">{{ slot.batiment or '' }}</div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-400 text-[#64748b]">📅 Aucune réservation pour cette période.</p>
+    </div>
+    {% endif %}
+</div>
+</div>
+
+<div class="mx-auto max-w-[95%] px-6 pb-10">
+    <div class="glass-card p-6 animate-fade-in-up">
+        <h2 class="text-2xl font-display font-bold mb-4 text-white text-[#0f172a]">
+            🗓️ Vue Calendrier Interactif (Bêta)
+        </h2>
+        <div id="calendar" style="min-height: 800px; font-size: 1.1em;" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-inner text-gray-800 dark:text-gray-200"></div>
+    </div>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    
+    var eventsData = [];
+    {% if planning_grid %}
+        {% for day in planning_grid %}
+            {% for slot_name in ['matin1', 'matin2', 'pm1', 'pm2'] %}
+                {% set slot = day.slots[slot_name] %}
+                {% if slot %}
+                eventsData.push({
+                    title: '{{ slot.matiere }} ({{ slot.salle }})',
+                    start: '{{ slot.iso_date }}T{{ slot.iso_start }}',
+                    end: '{{ slot.iso_date }}T{{ slot.iso_end }}',
+                    backgroundColor: '{{ "#3b82f6" if slot.type == "CM" else "#10b981" if slot.type == "TP" else "#f59e0b" }}',
+                    extendedProps: {
+                        enseignant: '{{ slot.enseignant }}',
+                        groupe: '{{ slot.groupe }}'
+                    }
+                });
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek', // Changed to Week view for better visibility of sessions
+      height: 'auto', // Ensures it expands based on content
+      contentHeight: 800,
+      expandRows: true, // Make rows expand to fill height
+      locale: 'fr',
+      slotMinTime: '08:00:00',
+      slotMaxTime: '18:00:00',
+      allDaySlot: false,
+      {% if current_user.role == 'administrateur' %}
+      editable: true,
+      eventDrop: function(info) {
+          alert("Fonctionnalité bêta: Déplacement de cours pour admin. (Le backend nécessite d'être mis à jour pour enregistrer cette modification de " + info.event.title + ")");
+      },
+      {% else %}
+      editable: false,
+      {% endif %}
+      initialDate: '{{ semaine_str if semaine_str else planning_grid[0].date_obj.isoformat() if planning_grid else "" }}',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      },
+      events: eventsData,
+      eventContent: function(arg) {
+        // Personnaliser le contenu de l'événement pour qu'il soit bien visible
+        let titleEl = document.createElement('div');
+        titleEl.innerHTML = `<strong>${arg.event.title}</strong>`;
+        let profEl = document.createElement('div');
+        profEl.innerHTML = `<em>${arg.event.extendedProps.enseignant}</em>`;
+        let groupeEl = document.createElement('div');
+        groupeEl.innerHTML = `<small>${arg.event.extendedProps.groupe}</small>`;
+        
+        let arrayOfDomNodes = [titleEl, profEl, groupeEl]
+        return { domNodes: arrayOfDomNodes }
+      },
+      eventDidMount: function(info) {
+        info.el.title = info.event.title + " | Prof: " + info.event.extendedProps.enseignant + " | Grp: " + info.event.extendedProps.groupe;
+        // Ajouter un peu de padding pour les événements
+        info.el.style.padding = '4px';
+      }
+    });
+    
+    calendar.render();
+
+    // Rendre FullCalendar responsive par rapport au dark mode
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                calendar.render(); // force re-render on theme change
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+  });
+</script>
+
+<style>
+    /* Custom FullCalendar Dark Mode Fixes */
+    html.dark .fc-theme-standard td, 
+    html.dark .fc-theme-standard th, 
+    html.dark .fc-theme-standard .fc-scrollgrid {
+        border-color: #334155;
+    }
+    html.dark .fc-timegrid-slot-label-cushion, 
+    html.dark .fc-col-header-cell-cushion {
+        color: #f8fafc;
+    }
+    html.dark .fc-list-day-cushion {
+        background-color: #1e293b;
+        color: #f8fafc;
+    }
+    html.dark .fc-list-event:hover td {
+        background-color: #334155;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function exportPDF() {
+        const element = document.getElementById('planning-grid-container');
+        if (!element) {
+            alert('Aucune donnée à exporter.');
+            return;
+        }
+        
+        const opt = {
+            margin:       10,
+            filename:     'Planning_Hestim.pdf',
+            image:        { type: 'jpeg', quality: 1 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff' },
+            jsPDF:        { unit: 'mm', format: 'a3', orientation: 'landscape' } // Landscape for big grids
+        };
+        
+        const btn = document.querySelector('a[onclick="exportPDF()"]');
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Export...';
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.innerHTML = oldHtml;
+        });
+    }
+</script>
+
+{% endblock %}

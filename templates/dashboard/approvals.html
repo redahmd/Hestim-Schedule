@@ -1,0 +1,65 @@
+﻿{% extends 'base.html' %}
+{% block title %}Approbations des Administrateurs{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Nouveaux Admins en attente</h1>
+    <p class="text-gray-600 mt-2">Gérez les demandes d'accès des nouveaux administrateurs.</p>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    {% if admins_en_attente %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-left text-sm font-semibold text-gray-500 border-b border-gray-200">
+                    <th class="pb-3 px-4">Nom complet</th>
+                    <th class="pb-3 px-4">Email</th>
+                    <th class="pb-3 px-4">Date d'inscription</th>
+                    <th class="pb-3 px-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for admin in admins_en_attente %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4">
+                        <div class="font-medium text-gray-900">{{ admin.prenom }} {{ admin.nom }}</div>
+                    </td>
+                    <td class="py-4 px-4 text-gray-500">{{ admin.email }}</td>
+                    <td class="py-4 px-4 text-gray-500">
+                        {% if admin.date_creation %}
+                        {{ admin.date_creation.strftime('%d/%m/%Y') }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                        <form action="{{ url_for('dashboard.approvals') }}" method="POST" class="inline-flex gap-2">
+                            <input type="hidden" name="user_id" value="{{ admin.id_utilisateur }}">
+                            <button type="submit" name="action" value="approuver"
+                                class="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition text-sm font-medium">
+                                <i class="fa-solid fa-check mr-1"></i> Approuver
+                            </button>
+                            <button type="submit" name="action" value="rejeter"
+                                class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition text-sm font-medium"
+                                onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette demande ?');">
+                                <i class="fa-solid fa-times mr-1"></i> Rejeter
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-check-circle text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">Aucune demande en attente</h3>
+        <p class="text-gray-500">Tous les administrateurs ont été traités.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
